@@ -1,0 +1,70 @@
+# depslib dependency file v1.0
+1449950860 source:d:\prg\_codeblocks\projektip\common\log.c
+	<stdio.h>
+	<time.h>
+	<stdarg.h>
+	"log.h"
+	"../common/win.h"
+	"../common/types.h"
+
+1450001365 d:\prg\_codeblocks\projektip\common\log.h
+	"types.h"
+
+1450126849 d:\prg\_codeblocks\projektip\common\types.h
+	<stdint.h>
+	<windows.h>
+
+1450029661 d:\prg\_codeblocks\projektip\common\win.h
+
+1450030463 source:d:\prg\_codeblocks\projektip\common\mem.c
+	<stdlib.h>
+	<string.h>
+	"mem.h"
+	"log.h"
+
+1450002527 d:\prg\_codeblocks\projektip\common\mem.h
+	"types.h"
+
+1450001292 source:d:\prg\_codeblocks\projektip\symulacja\config.c
+	"config.h"
+
+1450029546 d:\prg\_codeblocks\projektip\symulacja\config.h
+
+1450342938 source:d:\prg\_codeblocks\projektip\symulacja\server.c
+	<time.h>
+	<uv.h>
+	"../common/mem.h"
+	"../common/log.h"
+	"server.h"
+
+1450342610 d:\prg\_codeblocks\projektip\symulacja\server.h
+	<uv.h>
+	"../common/types.h"
+
+1450342708 source:d:\prg\_codeblocks\projektip\symulacja\symulacja.c
+	"../common/mem.h"
+	"../common/log.h"
+	"symulacja.h"
+	"server.h"
+	"config.h"
+	"srvProtocol.h"
+
+1450001432 d:\prg\_codeblocks\projektip\symulacja\symulacja.h
+
+1450345016 source:d:\prg\_codeblocks\projektip\common\list.c
+	<uv.h>
+	"mem.h"
+	"list.h"
+
+1450344574 d:\prg\_codeblocks\projektip\common\list.h
+	<uv.h>
+
+1450342297 source:d:\prg\_codeblocks\projektip\symulacja\srvprotocol.c
+	"srvProtocol.h"
+	"../common/log.h"
+	"server.h"
+
+1450342655 d:\prg\_codeblocks\projektip\symulacja\srvprotocol.h
+	"../common/types.h"
+	"server.h"
+
