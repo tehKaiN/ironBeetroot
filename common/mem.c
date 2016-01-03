@@ -3,7 +3,7 @@
 #include "mem.h"
 #include "log.h"
 
-/// TODO: memory allocation list
+// TODO(#7): memory allocation list
 
 void memCreate(void) {
 	// Clear mem manager

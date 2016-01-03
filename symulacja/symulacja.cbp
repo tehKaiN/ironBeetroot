@@ -63,10 +63,22 @@
 		</Unit>
 		<Unit filename="../common/packet.h" />
 		<Unit filename="../common/types.h" />
+		<Unit filename="arm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="arm.h" />
 		<Unit filename="config.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
+		<Unit filename="package.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="package.h" />
+		<Unit filename="platform.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="platform.h" />
 		<Unit filename="serverProcess.c">
 			<Option compilerVar="CC" />
 		</Unit>

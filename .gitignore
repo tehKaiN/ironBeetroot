@@ -47,7 +47,8 @@ Temporary Items
 .apdisk
 
 # =========================
-# Code::Blocks
+# Project-specific
 # =========================
 
 *.o
+*.log

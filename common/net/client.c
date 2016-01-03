@@ -37,7 +37,7 @@ void netClientCreate(char *szIP, UWORD uwPort, fnPacketProcess pPacketProcess) {
 
 void netClientDestroy(tNetClient *pClient) {
 
-	// TODO: Send disconnect packet to server
+	// TODO(#3): Send disconnect packet to server
 
 	logSuccess("Destroyed client 0x%p", pClient);
 }

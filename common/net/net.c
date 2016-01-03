@@ -16,7 +16,7 @@ void netCreate(void) {
 	g_sNetManager.pLoop = memAlloc(sizeof(uv_loop_t));
 	uv_loop_init(g_sNetManager.pLoop);
 
-	// TODO(#1): add keyboard event handler - A for about, Q for quit
+	// TODO(#2): add keyboard event handler - A for about, Q for quit, R - reset
 }
 
 void netRun(void) {

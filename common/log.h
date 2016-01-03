@@ -1,6 +1,9 @@
 #ifndef COMMON_LOG_H
 #define COMMON_LOG_H
 
+#include <stdio.h>
+#include <uv.h>
+
 #include "types.h"
 
 #define LOG_COLOR_GREY 0
@@ -9,6 +12,17 @@
 #define LOG_COLOR_RED 3
 #define LOG_COLOR_WHITE 4
 #define LOG_DATE_BUFFER_SIZE 20
+
+typedef struct tLogManager{
+	uv_mutex_t sMutex;
+	FILE *pFile;
+} tLogManager;
+
+void logCreate(
+	IN char *szLogName
+);
+
+void logDestroy(void);
 
 void logSetColor(
 	IN UBYTE ubColor
@@ -32,6 +46,8 @@ void logBinary(
 	IN void *pData,
 	IN UWORD uwSize
 );
+
+extern tLogManager g_sLogManager;
 
 #define logWrite(...) logWriteColor(LOG_COLOR_GREY, __func__, __VA_ARGS__)
 #define logError(...) logWriteColor(LOG_COLOR_RED, __func__, __VA_ARGS__)
