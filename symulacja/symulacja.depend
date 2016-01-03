@@ -68,14 +68,13 @@
 	"../common/types.h"
 	"server.h"
 
-1451511128 source:d:\prg\_git\ironbeetroot\common\list.c
+1451759222 source:d:\prg\_git\ironbeetroot\common\list.c
 	<uv.h>
 	"mem.h"
 	"list.h"
 
-1451302877 d:\prg\_git\ironbeetroot\common\mem.h
+1451814871 d:\prg\_git\ironbeetroot\common\mem.h
 	"types.h"
-	<uv.h>
 
 1450126849 d:\prg\_git\ironbeetroot\common\types.h
 	<stdint.h>
@@ -84,20 +83,19 @@
 1451510655 d:\prg\_git\ironbeetroot\common\list.h
 	<uv.h>
 
-1451496178 source:d:\prg\_git\ironbeetroot\common\log.c
+1451760666 source:d:\prg\_git\ironbeetroot\common\log.c
 	<stdio.h>
 	<time.h>
 	<stdarg.h>
 	"log.h"
 	"../common/types.h"
 
-1450528944 d:\prg\_git\ironbeetroot\common\log.h
+1451758353 d:\prg\_git\ironbeetroot\common\log.h
 	"types.h"
 
-1451302798 source:d:\prg\_git\ironbeetroot\common\mem.c
+1451814877 source:d:\prg\_git\ironbeetroot\common\mem.c
 	<stdlib.h>
 	<string.h>
-	<uv.h>
 	"mem.h"
 	"log.h"
 
@@ -123,16 +121,16 @@
 1450783340 d:\prg\_git\ironbeetroot\common\packet.h
 	"types.h"
 
-1451509322 source:d:\prg\_git\ironbeetroot\symulacja\serverprocess.c
+1451815627 source:d:\prg\_git\ironbeetroot\symulacja\serverprocess.c
 	"serverProcess.h"
 	"../common/mem.h"
 	"../common/log.h"
 	"../common/packet.h"
-	"../common/net.h"
+	"../common/net/server.h"
 
-1451508712 d:\prg\_git\ironbeetroot\symulacja\serverprocess.h
+1451814321 d:\prg\_git\ironbeetroot\symulacja\serverprocess.h
 	"../common/types.h"
-	"../common/net.h"
+	"../common/net/net.h"
 
 1451511378 source:d:\prg\_git\ironbeetroot\symulacja\symulacja.c
 	"../common/mem.h"
@@ -153,5 +151,37 @@
 	<time.h>
 	"types.h"
 	"list.h"
+	"packet.h"
+
+1451820356 source:d:\prg\_git\ironbeetroot\common\net\client.c
+	<stdio.h>
+	"client.h"
+	"../log.h"
+	"../packet.h"
+
+1451820342 d:\prg\_git\ironbeetroot\common\net\client.h
+	<uv.h>
+	"../types.h"
+	"net.h"
+
+1451820246 d:\prg\_git\ironbeetroot\common\net\net.h
+	<uv.h>
+	<time.h>
+	"../types.h"
+	"../list.h"
+	"../packet.h"
+
+1451820384 source:d:\prg\_git\ironbeetroot\common\net\net.c
+	"net.h"
+	"../log.h"
+	"../mem.h"
+	"server.h"
+	"client.h"
+
+1451755910 d:\prg\_git\ironbeetroot\common\net\server.h
+	"../types.h"
+	"net.h"
+
+1450783321 source:d:\prg\_git\ironbeetroot\common\packet.c
 	"packet.h"
 

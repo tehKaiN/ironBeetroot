@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "client.h"
 #include "../log.h"
+#include "../packet.h"
 
 void netClientCreate(char *szIP, UWORD uwPort, fnPacketProcess pPacketProcess) {
 	tListNode *pNode;
@@ -28,6 +29,9 @@ void netClientCreate(char *szIP, UWORD uwPort, fnPacketProcess pPacketProcess) {
 	uv_ip4_addr(szIP, uwPort, &pClient->sSrvAddr);
 	netClientReconnect(pClient, 0);
 
+	pClient->sSrvConn.pClientServer = pClientServer;
+	pClient->sSrvConn.pStream = (uv_stream_t*)&pClientServer->sTCP;
+
 	++g_sNetManager.ubClientCount;
 }
 
@@ -35,7 +39,7 @@ void netClientDestroy(tNetClient *pClient) {
 
 	// TODO: Send disconnect packet to server
 
-	logSuccess("Destroyed client %p", pClient);
+	logSuccess("Destroyed client 0x%p", pClient);
 }
 
 void netClientReconnect(tNetClient *pClient, LONG lErrorCode) {
@@ -64,23 +68,24 @@ void netClientReconnect(tNetClient *pClient, LONG lErrorCode) {
 			logError("Unknown connectstate: %u", pClient->ubConnectState);
 	}
 
+	pClient->sSrvConn.ubActive = 0;
 	pClient->ubConnectState = CONNECTSTATE_RETRY;
 
 	// Reconnect
 	uv_tcp_connect(
-		&pClient->sConn, &((tNetClientServer*)pClient)->sTCP,
+		&pClient->sUvConn, &((tNetClientServer*)pClient)->sTCP,
 		(const struct sockaddr *)&pClient->sSrvAddr,
 		netClientOnConnect
 	);
 }
 
-void netClientOnConnect(uv_connect_t* pConn, LONG lStatus) {
+void netClientOnConnect(uv_connect_t* pUvConn, LONG lStatus) {
 	tNetClient *pClient;
 	tPacket sPacket;
-  pClient = netClientGetByConnection(pConn);
+  pClient = netClientGetByUvConn(pUvConn);
 
 	if(!pClient) {
-		printf("\n");
+		printf("\n"); // Newline after reconnect dots
 		logError("Unknown connection response");
 		return;
 	}
@@ -90,17 +95,20 @@ void netClientOnConnect(uv_connect_t* pConn, LONG lStatus) {
 	}
 	printf("\n");
 
+	pClient->sSrvConn.ubActive = 1;
 	pClient->ubConnectState = CONNECTSTATE_OK;
-	logSuccess("Connected, sending client type: %u", CLIENT_TYPE_NADANIE);
-
-//	stream = connection->handle;
+	logSuccess(
+		"Connected, sending client type: '%s\' (%u)",
+		g_szClientTypes[CLIENT_TYPE_NADANIE], CLIENT_TYPE_NADANIE
+	);
 
 	// Send ID packet
+	// TODO(#1): move it to onConnect cb - not everyone wants such protocol
 	packetMakeHello(&sPacket, CLIENT_TYPE_NADANIE);
-	netClientSend(&sPacket, clientReadResponse);
+	netSend(&pClient->sSrvConn, &sPacket, netReadAfterWrite);
 }
 
-tNetClient *netClientGetByConnection(uv_connect_t *pConn) {
+tNetClient *netClientGetByUvConn(uv_connect_t *pUvConn) {
 	tListNode *pNode;
 	tNetClient *pClient;
 
@@ -108,7 +116,7 @@ tNetClient *netClientGetByConnection(uv_connect_t *pConn) {
 	pNode = g_sNetManager.pClientServerList->pHead;
 	while(pNode) {
 		pClient = (tNetClient*)pNode->pData;
-		if(&pClient->sConn == pConn) {
+		if(&pClient->sUvConn == pUvConn) {
 			uv_mutex_unlock(&g_sNetManager.pClientServerList->sMutex);
 			return pClient;
 		}

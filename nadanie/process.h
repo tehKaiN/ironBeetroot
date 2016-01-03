@@ -3,7 +3,11 @@
 
 #include "../common/net/net.h"
 
-void processClient(tNetServer *pServer, tNetConn *pClient, tPacket *pPacket);
+void processClient(
+	IN tNetClientServer *pClientServer,
+	IN tNetConn *pClient,
+	IN tPacket *pPacket
+);
 
 
 #endif // GUARD_PROCESS_H

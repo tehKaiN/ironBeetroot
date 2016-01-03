@@ -16,11 +16,11 @@
 #define CONNECTSTATE_OK 2
 #define CONNECTSTATE_RETRY 3
 
-struct _tNetServer;
+struct _tNetClientServer;
 struct _tNetConn;
 
 typedef void fnPacketProcess(
-	IN struct _tNetServer *pServer,
+	IN struct _tNetClientServer *pServer,
 	IN struct _tNetConn *pClient,
 	IN tPacket *pPacket
 );
@@ -34,21 +34,30 @@ typedef struct _tNetManager{
 } tNetManager;
 
 typedef struct _tNetConn{
-	uv_tcp_t *pTCP;                          /// UV TCP handle - data field has backlink
-	UBYTE ubType;                            /// Client type
+	uv_stream_t *pStream;                    /// UV Connection stream
 	UBYTE ubActive;                          /// 1: connected, 0: not
+	UBYTE ubType;                             // TODO: remove, add: void *data
 	time_t llLastPacketTime;                 /// Last received packet timestamp
 	struct _tNetClientServer *pClientServer; /// Backlink to associated client/server
 } tNetConn;
 
+/**
+ * Client struct
+ * Used to describe client management on UV loop
+ */
 typedef struct _tNetClient{
-	uv_connect_t sConn;           /// UV Connection handle
-	struct sockaddr_in sSrvAddr; /// Socket config for (re)connecting
+	uv_connect_t sUvConn;         /// UV Connection handle
+	struct sockaddr_in sSrvAddr;  /// Socket config for (re)connecting
 	char szIP[12];                /// Connection IP addr
 	UWORD uwPort;                 /// Connection port
 	UBYTE ubConnectState;         /// See CONNECTSTATE_* macros
+	tNetConn sSrvConn;            /// Server connection struct
 } tNetClient;
 
+/**
+ * Server struct
+ * Used to describe server management on UV loop
+ */
 typedef struct _tNetServer{
 	UBYTE ubMaxClients;    /// Max client count
 	UWORD uwTimeout;       /// Max packet time distance
@@ -56,10 +65,15 @@ typedef struct _tNetServer{
 	uv_mutex_t sListMutex; /// Mutex for client list modification
 } tNetServer;
 
+/**
+ * Client/Server struct
+ * Must be this way because C/S list in netManager allocates
+ * sizeof(tNetClientServer) for each node data
+ */
 typedef struct _tNetClientServer{
-  union {                         /// tNetClient & tNetServer are castable to tNetClientServer
-		tNetClient sClient;
-		tNetServer sServer;
+  union {                          /// Union as first struct element allows
+		tNetClient sClient;            /// two-way casting as tNetClient
+		tNetServer sServer;            /// or tNetServer
   };
 	UBYTE ubType;                    /// NET_UNKNOWN | NET_CLIENT | NET_SERVER
 	uv_tcp_t sTCP;                   /// UV TCP handle - data field has backlink
@@ -91,6 +105,23 @@ UBYTE netGetPacket(
 
 void netUpdateConnTime(
 	IN tNetConn *pConn
+);
+
+void netSend(
+	IN tNetConn *pConn,
+	IN tPacket *pPacket,
+	IN uv_write_cb pOnWrite
+);
+
+void netReadAfterWrite(
+	IN uv_write_t* pWriteRequest,
+	IN LONG lStatus
+);
+
+void netAllocBfr(
+	IN uv_handle_t *pHandle,
+	IN size_t ulSuggestedSize,
+	OUT uv_buf_t *pBuf
 );
 
 #endif // GUARD_COMMON_NET_NET_H

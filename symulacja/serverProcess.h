@@ -2,7 +2,7 @@
 #define GUARD_SERVERPROCESS_H
 
 #include "../common/types.h"
-#include "../common/net.h"
+#include "../common/net/net.h"
 
 void serverProcessProtocol(
 	IN tNetServer *pServer,

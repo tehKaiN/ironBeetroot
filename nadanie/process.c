@@ -3,7 +3,7 @@
 #include "../common/net/net.h"
 #include "../common/packet.h"
 
-void processClient(tNetServer *pServer, tNetConn *pClient, tPacket *pPacket) {
+void processClient(tNetClientServer *pServer, tNetConn *pClient, tPacket *pPacket) {
 
 	// do stuff
 }

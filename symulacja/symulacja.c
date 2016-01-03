@@ -1,5 +1,6 @@
 #include "../common/mem.h"
 #include "../common/log.h"
+#include "../common/net/server.h"
 
 #include "symulacja.h"
 #include "config.h"
@@ -7,11 +8,11 @@
 
 int main(void) {
 	memCreate();
-	logSuccess("Init\n");
+	logSuccess("Init");
 	configLoad();
 	netCreate();
 
-	netServerCreate(10, 888, serverProcessProtocol, 10);
+	netServerCreate(10, 888, (fnPacketProcess*)serverProcessProtocol, 10);
 	netRun();
 
 	netDestroy();

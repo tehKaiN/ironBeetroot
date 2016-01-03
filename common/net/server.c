@@ -34,10 +34,10 @@ void netServerCreate(UBYTE ubMaxClients, UWORD uwPort, fnPacketProcess *pPacketP
 
 	lError = uv_listen((uv_stream_t*)(&pClientServer->sTCP), ubBacklogLength, netServerOnConnect);
 	if(lError) {
-		logError("Listen fail: %s\n", uv_strerror(lError));
+		logError("Listen fail: %s", uv_strerror(lError));
 		return;
 	}
-	logSuccess("Listening @port: %u\n", uwPort);
+	logSuccess("Listening @port: %u", uwPort);
 	++g_sNetManager.ubServerCount;
 }
 
@@ -49,18 +49,18 @@ void netServerOnConnect(uv_stream_t *pServerStream, LONG lStatus) {
 	pServer = &((tNetClientServer*)(pServerStream->data))->sServer;
 
 	if(lStatus < 0) {
-		logError("Connect: %s\n", uv_strerror(lStatus));
+		logError("Connect: %s", uv_strerror(lStatus));
 		return;
 	}
-	logSuccess("Connected: %s@%u\n", "?.?.?.?", 0); // TODO: display IP, port
+	logSuccess("Connected: %s@%u", "?.?.?.?", 0); // TODO(#3): display IP, port
 
 	/// Add to client list
 	pClient = netServerAcceptClient(pServer);
 
 	/// Await ID packet
-	lError = uv_read_start((uv_stream_t*)pClient->pTCP, memAllocUvBfr, netOnRead);
+	lError = uv_read_start(pClient->pStream, netAllocBfr, netOnRead);
 	if(lError < 0) {
-		logError("Read: %s\n", uv_strerror(lError));
+		logError("Read: %s", uv_strerror(lError));
 		netServerRmClient(pClient);
 		return;
 	}
@@ -70,12 +70,12 @@ tNetConn *netServerAcceptClient(tNetServer *pServer) {
 	LONG lError;
 	UBYTE ubIdx;
 	uv_tcp_t *pClientTCP;
-	tNetConn *pClient;
+	tNetConn *pClientConn;
 	tNetClientServer *pClientServer;
 
 	pClientServer = (tNetClientServer*)pServer;
 	if(!netServerGetFreeClientIdx(pServer, &ubIdx)) {
-		logError("No more slots in client list\n");
+		logError("No more slots in client list");
 		return 0;
 	}
 
@@ -84,38 +84,40 @@ tNetConn *netServerAcceptClient(tNetServer *pServer) {
 	/// Accept client
 	pClientTCP = memAlloc(sizeof(uv_tcp_t));
 	uv_tcp_init(g_sNetManager.pLoop, pClientTCP);
-	lError = uv_accept((uv_stream_t*)(&pClientServer->sTCP), (uv_stream_t*)pClientTCP);
+	lError = uv_accept((uv_stream_t*)&pClientServer->sTCP, (uv_stream_t*)pClientTCP);
 	if(lError < 0) {
-		logError("Accept: %s\n", uv_strerror(lError));
+		logError("Accept: %s", uv_strerror(lError));
 		uv_close((uv_handle_t*)pClientTCP, 0);
 		memFree(pClientTCP);
 		uv_mutex_unlock(&pServer->sListMutex);
 		return 0;
 	}
 
-	/// Fill client struct
-	pClient = &pServer->pClients[ubIdx];
-	pClient->ubActive = 1;
-	pClient->pTCP = pClientTCP;
-	pClient->ubType = CLIENT_TYPE_UNKNOWN;
-	pClient->pClientServer = pClientServer;
-	time(&pClient->llLastPacketTime);
-	pClientTCP->data = pClient;
+	/// Fill client connection struct
+	pClientConn = &pServer->pClients[ubIdx];
+	pClientConn->ubActive = 1;
+	pClientConn->pStream = (uv_stream_t*)pClientTCP;
+	pClientConn->ubType = CLIENT_TYPE_UNKNOWN;
+	pClientConn->pClientServer = pClientServer;
+	time(&pClientConn->llLastPacketTime);
+	pClientTCP->data = pClientConn;
 
-	logSuccess("Client accepted\n"); // TODO: Display IP, port and assigned number
+	logSuccess("Client accepted");
+	// TODO(#3): Display IP, port and assigned number
+
 	uv_mutex_unlock(&pServer->sListMutex);
-	return pClient;
+	return pClientConn;
 }
 
 void netServerDestroy(tNetServer *pServer) {
 
-	// TODO: Send disconnect packet to connected clients
-	// TODO: Close all clients
+	// TODO(#4): Send disconnect packet to connected clients
+	// TODO(#4): Close all clients
 
-	// TODO: After: close server
+	// TODO(#4): After: close server
 
 	// Cleanup after done
-	// TODO: After
+	// TODO(#4): After
 	uv_mutex_destroy(&pServer->sListMutex);
   memFree(pServer->pClients);
 }
@@ -141,32 +143,32 @@ void netServerRmClient(tNetConn *pClient) {
 	uv_mutex_lock(&pServer->sListMutex);
 	if(!pClient->ubActive) {
 		uv_mutex_unlock(&pServer->sListMutex);
-		logWarning("Client %P is already inactive\n", pClient);
+		logWarning("Client 0x%p is already inactive", pClient);
 		return;
 	}
-	uv_close((uv_handle_t*)pClient->pTCP, 0);
+	uv_close((uv_handle_t*)pClient->pStream, 0);
 	pClient->ubActive = 0;
 	uv_mutex_unlock(&pServer->sListMutex);
-	logWrite("Client disconnected: %P\n", pClient);
+	logWrite("Client disconnected: 0x%p", pClient);
 }
 
 void netServerRmClientByIdx(tNetServer *pServer, UBYTE ubIdx) {
 	if(ubIdx >= pServer->ubMaxClients) {
-		logWarning("Client idx too high: %hu, max: %hu\n", ubIdx, pServer->ubMaxClients-1);
+		logWarning("Client idx too high: %hu, max: %hu", ubIdx, pServer->ubMaxClients-1);
 		return;
 	}
-	logWrite("Disconnecting client %P @idx: %hu...\n", pServer->pClients[ubIdx], ubIdx);
+	logWrite("Disconnecting client 0x%p @idx: %hu...", pServer->pClients[ubIdx], ubIdx);
 	netServerRmClient(&pServer->pClients[ubIdx]);
 }
 
 void netServerRmAll(tNetServer *pServer) {
 	UBYTE i;
-	logWrite("Disconnecting all clients...\n");
+	logWrite("Disconnecting all clients...");
 	for(i = pServer->ubMaxClients; i--;) {
 		if(pServer->pClients[i].ubActive)
 			netServerRmClient(&pServer->pClients[i]);
 	}
-	logWrite("All clients disconnected\n");
+	logWrite("All clients disconnected");
 }
 
 void netServerKeepAlive(tNetServer *pServer) {
@@ -179,7 +181,7 @@ void netServerKeepAlive(tNetServer *pServer) {
 	pClient = &pServer->pClients[ubClientIdx];
   if(pClient->ubActive && difftime(pClient->llLastPacketTime, llNow) > pServer->uwTimeout) {
 		uv_mutex_unlock(&pServer->sListMutex);
-		logWarning("Communication lost with client %P\n", pClient);
+		logWarning("Communication lost with client 0x%p", pClient);
 		netServerRmClient(pClient);
   }
   uv_mutex_unlock(&pServer->sListMutex);

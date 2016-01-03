@@ -16,7 +16,7 @@ void netCreate(void) {
 	g_sNetManager.pLoop = memAlloc(sizeof(uv_loop_t));
 	uv_loop_init(g_sNetManager.pLoop);
 
-	// TODO: add keyboard event handler - A for about, Q for quit
+	// TODO(#1): add keyboard event handler - A for about, Q for quit
 }
 
 void netRun(void) {
@@ -32,17 +32,10 @@ void netRun(void) {
 	);
 	g_sNetManager.ubIsRunning = 1;
 	uv_run(g_sNetManager.pLoop, UV_RUN_DEFAULT);
-	logWarning("UV loop end");
-	uv_loop_close(g_sNetManager.pLoop);
-	g_sNetManager.ubIsRunning = 0;
 }
 
 void netDestroy(void) {
 	tListNode *pNode;
-
-	if(!g_sNetManager.ubIsRunning) {
-		// TODO: Stop uv loop?
-	}
 
 	pNode = g_sNetManager.pClientServerList->pHead;
 	while(pNode) {
@@ -50,41 +43,74 @@ void netDestroy(void) {
 		pNode = pNode->pNext;
 	}
 
-	listDestroy(g_sNetManager.pClientServerList);
+	// TODO(#2): Stop after all client/servers are dead
+	if(!g_sNetManager.ubIsRunning) {
+		uv_loop_close(g_sNetManager.pLoop);
+		g_sNetManager.ubIsRunning = 0;
+		logWarning("UV loop stopped");
+	}
 
-	// TODO: UV cleanup
+	listDestroy(g_sNetManager.pClientServerList);
+	memFree(g_sNetManager.pLoop);
 }
 
 void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *pBuf) {
 	tPacket sPacket;
 	ULONG ulBufPos;
-	tNetConn *pClient;
+	tNetConn *pConn;
 	tNetClientServer *pClientServer;
+	UBYTE ubPacketOK;
 
-	pClient = (tNetConn*)(pClientStream->data);
-	pClientServer = pClient->pClientServer;
-	ulBufPos = 0;
-	// Is packet coming from active client from list?
-	if(!pClient) {
-		logWarning("Packet from unknown client");
+	// TODO(#6): Client crashes here if server shuts down
+
+	// Check connection validity
+	pConn = (tNetConn*)(pClientStream->data);
+	pClientServer = pConn->pClientServer;
+	if(!pConn) {
+		logError("Packet from null connection");
 		uv_close((uv_handle_t*) pClientStream, 0);
 		return;
 	}
-	if(!pClient->ubActive) {
-			logWarning("Packet from inactive client");
+	if(!pConn->ubActive) {
+			logError("Packet from inactive connection");
 			uv_close((uv_handle_t*) pClientStream, 0);
 			return;
 	}
-	netUpdateConnTime(pClient);
-
-	// Are there packets in buffer?
-	do {
-		// Get next packet from buffer
-		if(netGetPacket(&sPacket, pBuf, &ulBufPos, lDataLength)) {
-			// TODO: Process packet
-			pClientServer->pPacketProcess(&pClientServer->sServer, pClient, &sPacket);
+	if(lDataLength < 0) {
+		if(pClientServer->ubType == NET_CLIENT) {
+			logError("Server connection lost");
+			netClientReconnect((tNetClient*)pClientServer, lDataLength);
 		}
-	} while(ulBufPos < lDataLength);
+		else {
+			logError("Client connection lost");
+      netServerRmClient(pConn);
+		}
+		return;
+	}
+  // Is there anything to read?
+  if(!lDataLength) {
+		logWarning("Empty buffer");
+		return;
+  }
+
+	// Process packets
+	netUpdateConnTime(pConn);
+	// TODO(#1): Make following as cb (protocol-specific code)
+	ulBufPos = 0;
+	ubPacketOK = 0;
+	do {
+		ubPacketOK = netGetPacket(&sPacket, pBuf, &ulBufPos, lDataLength);
+		if(ubPacketOK)
+			pClientServer->pPacketProcess(pClientServer, pConn, &sPacket);
+	} while(ubPacketOK && ulBufPos < lDataLength);
+
+	if(!ubPacketOK) {
+		logError("Packets are suspicious - abort");
+		if(pClientServer->ubType == NET_CLIENT)
+			uv_close((uv_handle_t*)&pClientServer->sTCP, 0);
+		else
+      netServerRmClient(pConn);
+	}
 
 	memFree(pBuf->base);
 }
@@ -110,24 +136,11 @@ void netDestroyClientServer(tNetClientServer *pClientServer) {
 UBYTE netGetPacket(tPacket *pPacket, const uv_buf_t *pBuf, ULONG *pBufPos, LONG lDataLength) {
 	tPacketHead *pHead;
 
-	// Was read successful?
-  if(lDataLength < 0) {
-		logError("Read error: %s", uv_strerror(lDataLength));
-		return 0;
-  }
-
-  // Is there anything to read?
-  if(lDataLength == 0) {
-		logWarning("Empty buffer");
-		return 0;
-  }
-
   pHead = (tPacketHead*)&pBuf->base[*pBufPos];
 
 	// Does packet exceed max packet size?
 	if(pHead->ubPacketLength > sizeof(tPacket)) {
 		logWarning("Packet longer than expected");
-		// TODO: close client
 		return 0;
 	}
 
@@ -139,7 +152,6 @@ UBYTE netGetPacket(tPacket *pPacket, const uv_buf_t *pBuf, ULONG *pBufPos, LONG 
 			*pBufPos,
 			pBuf->len
 		);
-		// TODO: close client
 		return 0;
   }
 
@@ -159,4 +171,27 @@ void netUpdateConnTime(tNetConn *pConn) {
 	uv_mutex_lock(&pServer->sListMutex);
   time(&pConn->llLastPacketTime);
 	uv_mutex_unlock(&pServer->sListMutex);
+}
+
+void netSend(tNetConn *pConn, tPacket *pPacket, uv_write_cb pOnWrite) {
+	uv_buf_t sBuf;
+	uv_write_t sWriteRequest;
+
+	sBuf.base = (char *)pPacket;
+	sBuf.len = pPacket->sHead.ubPacketLength;
+
+	uv_write(&sWriteRequest, pConn->pStream, &sBuf, 1, pOnWrite);
+}
+
+void netReadAfterWrite(uv_write_t* pWriteRequest, LONG lStatus) {
+  if (lStatus < 0) {
+    logError("UV: %s\n", uv_strerror(lStatus));
+    // TODO (#1): reconnect?
+    return;
+  }
+	uv_read_start(pWriteRequest->handle, netAllocBfr, netOnRead);
+}
+
+void netAllocBfr(uv_handle_t *pHandle, size_t ulSuggestedSize, uv_buf_t *pBuf) {
+	 *pBuf = uv_buf_init(memAlloc(sizeof(ulSuggestedSize)), ulSuggestedSize);
 }

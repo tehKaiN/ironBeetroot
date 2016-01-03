@@ -8,7 +8,7 @@
 
 int main(void) {
 	memCreate();
-	logSuccess("Init\n");
+	logSuccess("Init");
 	netCreate();
 
 	netClientCreate("127.0.0.1", 888, processClient);

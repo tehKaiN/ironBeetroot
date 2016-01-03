@@ -25,7 +25,12 @@ void netClientOnConnect(
 	IN LONG lStatus
 );
 
-tNetClient *netClientGetByConnection(
+void netClientOnWrite(
+	IN uv_write_t* pWriteRequest,
+	IN LONG lStatus
+);
+
+tNetClient *netClientGetByUvConn(
 	IN uv_connect_t *pConn
 );
 

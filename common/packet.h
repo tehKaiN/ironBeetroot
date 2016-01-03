@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#define CLIENT_TYPES 7
 #define CLIENT_TYPE_UNKNOWN 0
 #define CLIENT_TYPE_RAMIE 1
 #define CLIENT_TYPE_LOGISTYKA 2
@@ -10,6 +11,8 @@
 #define CLIENT_TYPE_ODBIOR 4
 #define CLIENT_TYPE_WIZUALIZACJA 5
 #define CLIENT_TYPE_SYMULACJA 6
+
+extern const char *g_szClientTypes[CLIENT_TYPES];
 
 #define PACKET_INVALID 0
 #define PACKET_HELLO 1
