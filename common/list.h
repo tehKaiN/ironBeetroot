@@ -4,8 +4,8 @@
 #include <uv.h>
 
 typedef struct _tListNode{
-	struct _tListNode *pNext;
-	void *pData;
+	struct _tListNode *pNext; /// Next node in list
+	void *pData;              /// Node's data
 } tListNode;
 
 typedef struct _tList{
@@ -42,6 +42,11 @@ void listRmNode(
 
 void listRmAll(
 	IN tList *pList
+);
+
+tListNode *listGetNodeByData(
+	IN tList *pList,
+	IN void *pData
 );
 
 #endif // GUARD_COMMON_LIST_H

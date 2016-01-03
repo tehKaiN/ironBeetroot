@@ -1,13 +1,9 @@
 #include "process.h"
-#include "client.h"
+
+#include "../common/net/net.h"
 #include "../common/packet.h"
 
-void processClient(void) {
-	tPacket sPacket;
-
-	// Send ID packet
-	packetMakeHello(&sPacket, CLIENT_TYPE_NADANIE);
-	clientSend(&sPacket);
+void processClient(tNetServer *pServer, tNetConn *pClient, tPacket *pPacket) {
 
 	// do stuff
 }

@@ -68,3 +68,90 @@
 	"../common/types.h"
 	"server.h"
 
+1451511128 source:d:\prg\_git\ironbeetroot\common\list.c
+	<uv.h>
+	"mem.h"
+	"list.h"
+
+1451302877 d:\prg\_git\ironbeetroot\common\mem.h
+	"types.h"
+	<uv.h>
+
+1450126849 d:\prg\_git\ironbeetroot\common\types.h
+	<stdint.h>
+	<windows.h>
+
+1451510655 d:\prg\_git\ironbeetroot\common\list.h
+	<uv.h>
+
+1451496178 source:d:\prg\_git\ironbeetroot\common\log.c
+	<stdio.h>
+	<time.h>
+	<stdarg.h>
+	"log.h"
+	"../common/types.h"
+
+1450528944 d:\prg\_git\ironbeetroot\common\log.h
+	"types.h"
+
+1451302798 source:d:\prg\_git\ironbeetroot\common\mem.c
+	<stdlib.h>
+	<string.h>
+	<uv.h>
+	"mem.h"
+	"log.h"
+
+1450523758 source:d:\prg\_git\ironbeetroot\symulacja\config.c
+	"config.h"
+
+1450523742 d:\prg\_git\ironbeetroot\symulacja\config.h
+	"../common/types.h"
+
+1451495361 source:d:\prg\_git\ironbeetroot\symulacja\server.c
+	<time.h>
+	<uv.h>
+	"../common/mem.h"
+	"../common/log.h"
+	"config.h"
+	"server.h"
+
+1451495758 d:\prg\_git\ironbeetroot\symulacja\server.h
+	<uv.h>
+	"../common/types.h"
+	"../common/packet.h"
+
+1450783340 d:\prg\_git\ironbeetroot\common\packet.h
+	"types.h"
+
+1451509322 source:d:\prg\_git\ironbeetroot\symulacja\serverprocess.c
+	"serverProcess.h"
+	"../common/mem.h"
+	"../common/log.h"
+	"../common/packet.h"
+	"../common/net.h"
+
+1451508712 d:\prg\_git\ironbeetroot\symulacja\serverprocess.h
+	"../common/types.h"
+	"../common/net.h"
+
+1451511378 source:d:\prg\_git\ironbeetroot\symulacja\symulacja.c
+	"../common/mem.h"
+	"../common/log.h"
+	"symulacja.h"
+	"config.h"
+	"serverProcess.h"
+
+1450001432 d:\prg\_git\ironbeetroot\symulacja\symulacja.h
+
+1451511556 source:d:\prg\_git\ironbeetroot\common\net.c
+	"net.h"
+	"log.h"
+	"mem.h"
+
+1451511265 d:\prg\_git\ironbeetroot\common\net.h
+	<uv.h>
+	<time.h>
+	"types.h"
+	"list.h"
+	"packet.h"
+

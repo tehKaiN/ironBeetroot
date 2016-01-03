@@ -2,6 +2,8 @@
  * Logging functions
  */
 
+// TODO: mutex
+
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
@@ -43,27 +45,31 @@ void logPrintDate(void) {
 	pTimeInfo = localtime(&lTimeStamp);
 
   strftime(szDateBfr, LOG_DATE_BUFFER_SIZE, "[%H:%M:%S]", pTimeInfo);
-  printf("%s ", szDateBfr);
+  printf("%s", szDateBfr);
 }
 
-void logWriteColor(UBYTE ubColor, char *szFmt, ...) {
+void logWriteColor(UBYTE ubColor, const char *szFnName, char *szFmt, ...) {
 	va_list vaArgs;
 
+	logSetColor(LOG_COLOR_GREY);
+	logPrintDate();
+	printf("[%s] ", szFnName);
 	logSetColor(ubColor);
 
-	logPrintDate();
 	va_start(vaArgs, szFmt);
 	vprintf(szFmt, vaArgs);
 	va_end(vaArgs);
+	putc('\n', stdout);
 }
 
 void logBinary(void *pData, UWORD uwSize) {
 	UWORD i;
 
-	logSetColor(LOG_COLOR_WHITE);
 	logPrintDate();
+	logSetColor(LOG_COLOR_WHITE);
 	printf("Bin(%u): ", uwSize);
 	for(i = 0; i != uwSize; ++i) {
     printf("%0hX ", ((UBYTE*)pData)[i]);
 	}
+	putc('\n', stdout);
 }

@@ -2,10 +2,16 @@
 #define GUARD_SERVERPROCESS_H
 
 #include "../common/types.h"
-#include "server.h"
+#include "../common/net.h"
 
 void serverProcessProtocol(
-	IN tClient *pClient,
+	IN tNetServer *pServer,
+	IN tNetConn *pClient,
+	IN tPacket *pPacket
+);
+
+void serverProcessHello(
+	IN tNetConn *pClient,
 	IN tPacket *pPacket
 );
 

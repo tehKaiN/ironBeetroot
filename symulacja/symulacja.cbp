@@ -46,16 +46,17 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../common/mem.h" />
+		<Unit filename="../common/net.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/net.h" />
 		<Unit filename="../common/packet.h" />
 		<Unit filename="../common/types.h" />
 		<Unit filename="config.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
-		<Unit filename="server.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="server.h" />
+		<Unit filename="net.h" />
 		<Unit filename="serverProcess.c">
 			<Option compilerVar="CC" />
 		</Unit>
