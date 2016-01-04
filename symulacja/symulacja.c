@@ -50,7 +50,7 @@ void simCreate(void) {
 
 	// Generate platforms
 	logWrite("Generating platforms...");
-	op = (1?even:odd);
+	op = (1?even:odd); // TODO(#2): Read even/odd from config
 	g_sSim.ubPlatformCount = (g_sSim.ubHeight >> 1) << 1;
 	g_sSim.pPlatforms = memAlloc(g_sSim.ubPlatformCount * sizeof(tPlatform));
 	ubPlatform = 0;
@@ -68,7 +68,9 @@ void simCreate(void) {
 	armInit(ARM_B, 4, 8, 6, g_sSim.ubHeight >> 1);
 
 	// TODO(#9): Add simulation process timer
-
+	logWrite("Creating update timer...");
+	uv_timer_init(g_sNetManager.pLoop, &g_sSim.sTimer);
+	uv_timer_start(&g_sSim.sTimer, simUpdate, 500, 500);
 	logSuccess("Simulation created");
 }
 
@@ -86,6 +88,12 @@ void simDestroy(void) {
 	memFree(g_sSim.pFields);
 
 	logSuccess("Simulation destroyed");
+}
+
+void simUpdate(uv_timer_t *pTimer) {
+	// Update arms
+	armUpdate(&g_sSim.sArmA);
+	armUpdate(&g_sSim.sArmB);
 }
 
 tSim g_sSim;
