@@ -158,7 +158,10 @@ UBYTE netGetPacket(tPacket *pPacket, const uv_buf_t *pBuf, ULONG *pBufPos, LONG 
   // Fill packet struct
   memcpy(pPacket, &pBuf->base[*pBufPos], pHead->ubPacketLength);
   if(pHead->ubPacketLength < sizeof(tPacket))
-		memset(((UBYTE*)pPacket)+pHead->ubPacketLength, 0, sizeof(tPacket)-pHead->ubPacketLength);
+		memset(
+			((UBYTE*)pPacket)+pHead->ubPacketLength, 0,
+			sizeof(tPacket)-pHead->ubPacketLength
+		);
 
   *pBufPos += pHead->ubPacketLength;
   return 1;

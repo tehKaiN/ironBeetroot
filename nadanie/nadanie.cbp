@@ -71,10 +71,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="nadanie.h" />
-		<Unit filename="process.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="process.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

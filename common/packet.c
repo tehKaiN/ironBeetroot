@@ -15,9 +15,12 @@ void packetMakeEmpty(tPacket *pPacket, UBYTE ubType) {
 	pPacket->sHead.ubType  = ubType;
 }
 
-void packetMakeHello(tPacket *pPacket, UBYTE ubClientType) {
-	pPacket->sHead.ubPacketLength = sizeof(tPacketHead) + sizeof(tPacketHello);
-	pPacket->sHead.ubType = PACKET_HELLO;
+void packetMakeSetType(tPacket *pPacket, UBYTE ubClientType) {
+	tPacketSetType *pSetType;
 
-	pPacket->sHello.ubClientType = ubClientType;
+	pSetType = (tPacketSetType *)pPacket;
+	pSetType->sHead.ubPacketLength = sizeof(tPacketHead) + sizeof(tPacketSetType);
+	pSetType->sHead.ubType = PACKET_SETTYPE;
+
+	pSetType->ubClientType = ubClientType;
 }

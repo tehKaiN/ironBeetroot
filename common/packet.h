@@ -14,34 +14,86 @@
 
 extern const char *g_szClientTypes[CLIENT_TYPES];
 
-#define PACKET_INVALID 0
-#define PACKET_HELLO 1
-#define PACKET_ALIVE 2
-#define PACKET_BYE 3
+#define PACKET_RESPONSE          128
 
+/// Illegal packet
+#define PACKET_INVALID           0
+
+/// Common packets
+#define PACKET_SETTYPE           1
+#define PACKET_HEARTBEAT         2
+#define PACKET_DISCONNECT        3
+
+#define PACKET_R_SETTYPE         (PACKET_RESPONSE | PACKET_SETTYPE)
+
+/// Nadanie & odbior packets
+#define PACKET_GETPLATFORMLIST   4
+#define PACKET_GETPLATFORMSTATE  5
+#define PACKET_GETPLATFORMINFO   6
+#define PACKET_ADDPACKAGE        7
+#define PACKET_GRABPACKAGE       8
+
+#define PACKET_R_GETPLATFORMLIST  (PACKET_RESPONSE | PACKET_GETPLATFORMLIST)
+#define PACKET_R_GETPLATFORMSTATE (PACKET_RESPONSE | PACKET_GETPLATFORMSTATE)
+#define PACKET_R_GETPLATFORMINFO  (PACKET_RESPONSE | PACKET_GETPLATFORMINFO)
+#define PACKET_R_ADDPACKAGE       (PACKET_RESPONSE | PACKET_ADDPACKAGE)
+#define PACKET_R_GRABPACKAGE      (PACKET_RESPONSE | PACKET_GRABPACKAGE)
+// TODO: Logistyka packets
+// TODO: Ramie packets
+// TODO: Wizualizacja packets
+
+/**
+ * Empty packet struct
+ * Acts as header for more complex packets
+ */
 typedef struct _tPacketHead{
 	UBYTE ubType;         /// Packet type, 0 is illegal
-	UBYTE ubPacketLength; /// Packet length, including header size!
+	UBYTE ubPacketLength; /// Packet length, **including** header size
+	UWORD uwRand;         /// Random value, for obfuscating encryption pattern
 } tPacketHead;
-
-typedef struct _tPacketHello{
-	UBYTE ubClientType;
-} tPacketHello;
 
 typedef struct _tPacket{
 	tPacketHead sHead;
-	union {
-		char szData[255];
-		tPacketHello sHello;
-	};
+	UBYTE ubData[255-sizeof(tPacketHead)];
 } tPacket;
+
+typedef struct _tPacketSetType{
+	tPacketHead sHead;
+	UBYTE ubClientType;
+} tPacketSetType;
+
+typedef struct _tPacketSetTypeResponse{
+	tPacketHead sHead;
+	UBYTE ubIsOk;
+} tPacketSetTypeResponse;
+
+/**
+ * Platform data packet
+ */
+typedef struct _tPacketPlatformList{
+	tPacketHead sHead;
+	UBYTE ubPlatformCount;
+} tPacketPlatformList;
+
+typedef struct _tPacketPlatformState{
+	tPacketHead sHead;
+  UBYTE ubId;
+  UBYTE ubHasPackage;
+} tPacketPlatformState;
+
+typedef struct _tPacketPlatformInfo{
+	tPacketPlatformState sState;
+  UBYTE ubX;
+  UBYTE ubY;
+	char szName[16];
+} tPacketPlatformInfo;
 
 void packetMakeEmpty(
 	INOUT tPacket *pPacket,
 	IN UBYTE ubType
 );
 
-void packetMakeHello(
+void packetMakeSetType(
 	INOUT tPacket *pPacket,
 	IN UBYTE ubClientType
 );

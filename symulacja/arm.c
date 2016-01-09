@@ -1,4 +1,5 @@
 #include "../common/log.h"
+#include "../common/net/net.h"
 
 #include "arm.h"
 #include "symulacja.h"
@@ -31,10 +32,17 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
   uv_mutex_init(&pArm->sMutex);
   pArm->ubCmdState = ARM_CMDSTATE_IDLE;
 
+	// Start arm update timer
+	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
+	pArm->sTimer.data = pArm;
+	uv_timer_start(&pArm->sTimer, armUpdate, 500, 500);
+
 }
 
-void armUpdate(tArm *pArm) {
+void armUpdate(uv_timer_t *pTimer) {
+	tArm *pArm;
 
+	pArm = pTimer->data;
 	uv_mutex_lock(&pArm->sMutex);
 	switch(pArm->ubCmdState) {
 		case ARM_CMDSTATE_IDLE:

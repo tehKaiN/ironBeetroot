@@ -8,6 +8,7 @@
 void netClientCreate(
 	IN char *szIP,
 	IN UWORD uwPort,
+	IN fnOnConnect pOnConnect,
 	IN fnPacketProcess pPacketProcess
 );
 

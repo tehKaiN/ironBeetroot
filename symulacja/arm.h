@@ -58,6 +58,7 @@ typedef struct _tArm{
 	UBYTE ubCmdState;    /// See ARM_CMDSTATE_* macros
 	tPackage *pPackage;  /// Currently held package
 	uv_mutex_t sMutex;   /// Arm struct mutex
+	uv_timer_t sTimer;   /// Arm update timer
 } tArm;
 
 void armInit(
@@ -69,7 +70,7 @@ void armInit(
 );
 
 void armUpdate(
-	IN tArm *pArm
+	IN uv_timer_t *pTimer
 );
 
 void armGetNextCmd(

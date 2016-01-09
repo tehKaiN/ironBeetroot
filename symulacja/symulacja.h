@@ -24,7 +24,6 @@ typedef struct _tSim{
 	tPlatform *pPlatforms; /// Array of platforms
 	tArm sArmA;            /// HE HE HE...
 	tArm sArmB;            /// Secondary (lower) arm
-	uv_timer_t sTimer;     /// Simulation  update timer
 } tSim;
 
 void simCreate(void);

@@ -17,12 +17,17 @@
 #define CONNECTSTATE_RETRY 3
 
 struct _tNetClientServer;
+struct _tNetClient;
 struct _tNetConn;
 
 typedef void fnPacketProcess(
 	IN struct _tNetClientServer *pServer,
 	IN struct _tNetConn *pClient,
 	IN tPacket *pPacket
+);
+
+typedef void fnOnConnect(
+	IN struct _tNetClient *pClient
 );
 
 typedef struct _tNetManager{
@@ -38,7 +43,7 @@ typedef struct _tNetConn{
 	UBYTE ubActive;                          /// 1: connected, 0: not
 	UBYTE ubType;                             // TODO: remove, add: void *data
 	time_t llLastPacketTime;                 /// Last received packet timestamp
-	struct _tNetClientServer *pClientServer; /// Backlink to associated client/server
+	struct _tNetClientServer *pClientServer;
 } tNetConn;
 
 /**
@@ -52,6 +57,7 @@ typedef struct _tNetClient{
 	UWORD uwPort;                 /// Connection port
 	UBYTE ubConnectState;         /// See CONNECTSTATE_* macros
 	tNetConn sSrvConn;            /// Server connection struct
+	fnOnConnect *pOnConnect;       /// onConnect callback
 } tNetClient;
 
 /**

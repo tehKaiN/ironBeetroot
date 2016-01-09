@@ -3,7 +3,10 @@
 #include "../log.h"
 #include "../packet.h"
 
-void netClientCreate(char *szIP, UWORD uwPort, fnPacketProcess pPacketProcess) {
+void netClientCreate(
+	char *szIP, UWORD uwPort,
+	fnOnConnect pOnConnect, fnPacketProcess pPacketProcess
+) {
 	tListNode *pNode;
 	tNetClientServer *pClientServer;
 	tNetClient *pClient;
@@ -23,6 +26,7 @@ void netClientCreate(char *szIP, UWORD uwPort, fnPacketProcess pPacketProcess) {
 	pClient->ubConnectState = CONNECTSTATE_NEW;
 	strcpy(pClient->szIP, szIP);
 	pClient->uwPort = uwPort;
+	pClient->pOnConnect = pOnConnect;
 	pClientServer->pPacketProcess = pPacketProcess;
 
 	uv_tcp_init(g_sNetManager.pLoop, &pClientServer->sTCP);
@@ -81,11 +85,10 @@ void netClientReconnect(tNetClient *pClient, LONG lErrorCode) {
 
 void netClientOnConnect(uv_connect_t* pUvConn, LONG lStatus) {
 	tNetClient *pClient;
-	tPacket sPacket;
-  pClient = netClientGetByUvConn(pUvConn);
 
+  pClient = netClientGetByUvConn(pUvConn);
 	if(!pClient) {
-		printf("\n"); // Newline after reconnect dots
+		printf("\n"); // Newline after netClientReconnect dots
 		logError("Unknown connection response");
 		return;
 	}
@@ -93,19 +96,13 @@ void netClientOnConnect(uv_connect_t* pUvConn, LONG lStatus) {
 		netClientReconnect(pClient, lStatus);
 		return;
 	}
-	printf("\n");
+	printf("\n"); // Newline after netClientReconnect dots
 
 	pClient->sSrvConn.ubActive = 1;
 	pClient->ubConnectState = CONNECTSTATE_OK;
-	logSuccess(
-		"Connected, sending client type: '%s\' (%u)",
-		g_szClientTypes[CLIENT_TYPE_NADANIE], CLIENT_TYPE_NADANIE
-	);
+	logSuccess("Connected to %s@%u", pClient->szIP, pClient->uwPort);
 
-	// Send ID packet
-	// TODO(#1): move it to onConnect cb - not everyone wants such protocol
-	packetMakeHello(&sPacket, CLIENT_TYPE_NADANIE);
-	netSend(&pClient->sSrvConn, &sPacket, netReadAfterWrite);
+	pClient->pOnConnect(pClient);
 }
 
 tNetClient *netClientGetByUvConn(uv_connect_t *pUvConn) {
