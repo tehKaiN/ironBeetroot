@@ -1,5 +1,5 @@
-#ifndef GUARD_SYMULACJA_PLATFORM_H
-#define GUARD_SYMULACJA_PLATFORM_H
+#ifndef GUARD_HALL_PLATFORM_H
+#define GUARD_HALL_PLATFORM_H
 
 #include "../common/types.h"
 #include "package.h"
@@ -24,4 +24,4 @@ void platformInit(
 	IN UBYTE ubType
 );
 
-#endif // GUARD_SYMULACJA_PLATFORM_H
+#endif // GUARD_HALL_PLATFORM_H

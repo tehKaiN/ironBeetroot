@@ -1,5 +1,5 @@
-#ifndef GUARD_SYMULACJA_ARM_H
-#define GUARD_SYMULACJA_ARM_H
+#ifndef GUARD_HALL_ARM_H
+#define GUARD_HALL_ARM_H
 
 #include "../common/types.h"
 
@@ -85,5 +85,5 @@ void armProcessCmd(
 	IN tArm *pArm
 );
 
-#endif // GUARD_SYMULACJA_ARM_H
+#endif // GUARD_HALL_ARM_H
 

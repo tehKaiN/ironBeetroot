@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="nadanie" />
+		<Option title="hall" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../bin/Debug/nadanie" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/Debug/hall" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -16,7 +16,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="../bin/Release/nadanie" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/Release/hall" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -63,19 +63,34 @@
 		</Unit>
 		<Unit filename="../common/packet.h" />
 		<Unit filename="../common/types.h" />
+		<Unit filename="arm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="arm.h" />
 		<Unit filename="config.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
-		<Unit filename="nadanie.c">
+		<Unit filename="hall.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="nadanie.h" />
+		<Unit filename="hall.h" />
+		<Unit filename="package.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="package.h" />
+		<Unit filename="platform.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="platform.h" />
+		<Unit filename="serverProcess.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="serverProcess.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
-			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

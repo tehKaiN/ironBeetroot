@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="symulacja/symulacja.cbp" />
-		<Project filename="nadanie/nadanie.cbp" />
 		<Project filename="logistyka/logistyka.cbp" />
 		<Project filename="ramie/ramie.cbp" />
-		<Project filename="odbior/odbior.cbp" />
 		<Project filename="wizualizacja/wizualizacja.cbp" />
+		<Project filename="hall/hall.cbp" />
+		<Project filename="givetake/givetake.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

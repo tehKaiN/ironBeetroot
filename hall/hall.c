@@ -11,14 +11,14 @@ int main(void) {
 	memCreate();
 	configLoad();
 	netCreate();
-	simCreate();
+	hallCreate();
 
 	g_sHall.pServer = netServerCreate(
 		10, 888, (fnPacketProcess*)serverProcessProtocol, 10
 	);
 	netRun();
 
-	simDestroy();
+	hallDestroy();
 	netDestroy();
 	memDestroy();
 	logDestroy();
@@ -33,7 +33,7 @@ UBYTE odd(UBYTE x) {
 	return x ^ 1;
 }
 
-void simCreate(void) {
+void hallCreate(void) {
 	UBYTE x,y;
 	UBYTE ubPlatform;
 	UBYTE (*op)(UBYTE);
@@ -72,7 +72,7 @@ void simCreate(void) {
 	logSuccess("Simulation created");
 }
 
-void simDestroy(void) {
+void hallDestroy(void) {
 	UBYTE x;
 
 	// TODO(#9): Stop simulation process timer

@@ -3,12 +3,12 @@
 #include "../common/net/net.h"
 #include "../common/net/client.h"
 #include "../common/packet.h"
-#include "nadanie.h"
+#include "givetake.h"
 #include "config.h"
 #include "process.h"
 
 int main(void) {
-	logCreate("nadanie.log");
+	logCreate("givetake.log");
 	memCreate();
 	netCreate();
 	nadanieCreate();

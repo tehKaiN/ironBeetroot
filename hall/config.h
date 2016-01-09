@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef GUARD_HALL_CONFIG_H
+#define GUARD_HALL_CONFIG_H
 
 #include "../common/types.h"
 
@@ -12,5 +12,5 @@ extern tConfig g_sConfig;
 
 void configLoad(void);
 
-#endif // CONFIG_H
+#endif // GUARD_HALL_CONFIG_H
 

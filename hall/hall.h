@@ -29,11 +29,11 @@ typedef struct _tSim{
 	tArm sArmB;            /// Secondary (lower) arm
 } tHall;
 
-void simCreate(void);
+void hallCreate(void);
 
-void simDestroy(void);
+void hallDestroy(void);
 
-void simUpdate(
+void hallUpdate(
 	IN uv_timer_t *pTimer
 );
 

@@ -1,5 +1,5 @@
-#ifndef GUARD_SYMULACJA_PACKAGE_H
-#define GUARD_SYMULACJA_PACKAGE_H
+#ifndef GUARD_HALL_PACKAGE_H
+#define GUARD_HALL_PACKAGE_H
 
 #include "../common/types.h"
 
@@ -10,5 +10,5 @@ typedef struct _tPackage{
 	char *szName;             /// Displayable name
 } tPackage;
 
-#endif // GUARD_SYMULACJA_PACKAGE_H
+#endif // GUARD_HALL_PACKAGE_H
 
