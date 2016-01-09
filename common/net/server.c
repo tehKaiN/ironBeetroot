@@ -3,13 +3,12 @@
 #include "../log.h"
 #include <uv.h>
 
-void netServerCreate(UBYTE ubMaxClients, UWORD uwPort, fnPacketProcess *pPacketProcess, UBYTE ubBacklogLength) {
+tNetServer *netServerCreate(UBYTE ubMaxClients, UWORD uwPort, fnPacketProcess *pPacketProcess, UBYTE ubBacklogLength) {
 	tListNode *pNode;                /// Net list node
 	tNetClientServer *pClientServer; /// Server container struct
 	tNetServer *pServer;             /// Server struct
 	LONG lError;                     /// UV error code
 	struct sockaddr_in sListenAddr;  /// Listen address config
-
 
 	// Setup net list node
   pNode = listAddTail(g_sNetManager.pClientServerList);
@@ -32,13 +31,16 @@ void netServerCreate(UBYTE ubMaxClients, UWORD uwPort, fnPacketProcess *pPacketP
   uv_tcp_bind(&pClientServer->sTCP, (const struct sockaddr*)&sListenAddr, 0);
 
 
-	lError = uv_listen((uv_stream_t*)(&pClientServer->sTCP), ubBacklogLength, netServerOnConnect);
+	lError = uv_listen(
+		(uv_stream_t*)(&pClientServer->sTCP), ubBacklogLength, netServerOnConnect
+	);
 	if(lError) {
 		logError("Listen fail: %s", uv_strerror(lError));
-		return;
+		return 0;
 	}
 	logSuccess("Listening @port: %u", uwPort);
 	++g_sNetManager.ubServerCount;
+	return pServer;
 }
 
 void netServerOnConnect(uv_stream_t *pServerStream, LONG lStatus) {
@@ -56,6 +58,10 @@ void netServerOnConnect(uv_stream_t *pServerStream, LONG lStatus) {
 
 	/// Add to client list
 	pClient = netServerAcceptClient(pServer);
+	if(!pClient) {
+		logError("Accept failed");
+		return;
+	}
 
 	/// Await ID packet
 	lError = uv_read_start(pClient->pStream, netAllocBfr, netOnRead);
@@ -69,43 +75,42 @@ void netServerOnConnect(uv_stream_t *pServerStream, LONG lStatus) {
 tNetConn *netServerAcceptClient(tNetServer *pServer) {
 	LONG lError;
 	UBYTE ubIdx;
-	uv_tcp_t *pClientTCP;
+	uv_tcp_t *pClientTCP, *pServerTCP;
 	tNetConn *pClientConn;
-	tNetClientServer *pClientServer;
 
-	pClientServer = (tNetClientServer*)pServer;
+	pServerTCP = &(((tNetClientServer*)pServer)->sTCP);
+
 	if(!netServerGetFreeClientIdx(pServer, &ubIdx)) {
 		logError("No more slots in client list");
 		return 0;
 	}
 
-	uv_mutex_lock(&pServer->sListMutex);
 
 	/// Accept client
 	pClientTCP = memAlloc(sizeof(uv_tcp_t));
 	uv_tcp_init(g_sNetManager.pLoop, pClientTCP);
-	lError = uv_accept((uv_stream_t*)&pClientServer->sTCP, (uv_stream_t*)pClientTCP);
+	lError = uv_accept((uv_stream_t*)pServerTCP, (uv_stream_t*)pClientTCP);
 	if(lError < 0) {
 		logError("Accept: %s", uv_strerror(lError));
 		uv_close((uv_handle_t*)pClientTCP, 0);
 		memFree(pClientTCP);
-		uv_mutex_unlock(&pServer->sListMutex);
 		return 0;
 	}
 
 	/// Fill client connection struct
+	uv_mutex_lock(&pServer->sListMutex);
 	pClientConn = &pServer->pClients[ubIdx];
 	pClientConn->ubActive = 1;
 	pClientConn->pStream = (uv_stream_t*)pClientTCP;
 	pClientConn->ubType = CLIENT_TYPE_UNKNOWN;
-	pClientConn->pClientServer = pClientServer;
+	pClientConn->pClientServer = (tNetClientServer*)pServer;
 	time(&pClientConn->llLastPacketTime);
 	pClientTCP->data = pClientConn;
+	uv_mutex_unlock(&pServer->sListMutex);
 
-	logSuccess("Client accepted");
+	logSuccess("Client accepted and added as %p", pClientConn);
 	// TODO(#3): Display IP, port and assigned number
 
-	uv_mutex_unlock(&pServer->sListMutex);
 	return pClientConn;
 }
 

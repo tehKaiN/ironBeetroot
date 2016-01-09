@@ -71,6 +71,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
+		<Unit filename="hall.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="hall.h" />
 		<Unit filename="package.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -83,10 +87,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="serverProcess.h" />
-		<Unit filename="symulacja.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="symulacja.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -4,7 +4,7 @@
 #include "../types.h"
 #include "net.h"
 
-void netServerCreate(
+tNetServer *netServerCreate(
 	IN UBYTE ubMaxClients,
 	IN UWORD uwPort,
 	IN fnPacketProcess *pPacketProcess,

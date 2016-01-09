@@ -5,7 +5,7 @@
 #include "../types.h"
 #include "net.h"
 
-void netClientCreate(
+tNetClient *netClientCreate(
 	IN char *szIP,
 	IN UWORD uwPort,
 	IN fnOnConnect pOnConnect,

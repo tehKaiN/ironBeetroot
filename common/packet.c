@@ -1,25 +1,26 @@
+#include <stdlib.h>
 #include "packet.h"
 
-const char *g_szClientTypes[CLIENT_TYPES] = {
+const char *g_pClientTypes[CLIENT_TYPES] = {
 	"Unknown",
-	"Ramie",
-	"Logistyka",
-	"Nadanie",
-	"Odbior",
-	"Wizualizacja",
-	"Symulacja"
+	"Arm",
+	"Leader",
+	"GiveTake",
+	"Show",
+	"Hall"
 };
 
-void packetMakeEmpty(tPacket *pPacket, UBYTE ubType) {
-	pPacket->sHead.ubPacketLength = sizeof(tPacketHead);
-	pPacket->sHead.ubType  = ubType;
+void packetMakeHead(tPacketHead *pHead, UBYTE ubType, UBYTE ubSize) {
+	pHead->ubPacketLength = ubSize;
+	pHead->ubType  = ubType;
+	pHead->uwRand = rand() & 0xFFFF;
 }
 
 void packetMakeSetType(tPacket *pPacket, UBYTE ubClientType) {
 	tPacketSetType *pSetType;
 
 	pSetType = (tPacketSetType *)pPacket;
-	pSetType->sHead.ubPacketLength = sizeof(tPacketHead) + sizeof(tPacketSetType);
+	pSetType->sHead.ubPacketLength = sizeof(tPacketSetType);
 	pSetType->sHead.ubType = PACKET_SETTYPE;
 
 	pSetType->ubClientType = ubClientType;

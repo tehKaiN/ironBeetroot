@@ -2,18 +2,20 @@
 #include "../common/log.h"
 #include "../common/net/server.h"
 
-#include "symulacja.h"
+#include "hall.h"
 #include "config.h"
 #include "serverProcess.h"
 
 int main(void) {
-	logCreate("symulacja.log");
+	logCreate("hall.log");
 	memCreate();
 	configLoad();
 	netCreate();
 	simCreate();
 
-	netServerCreate(10, 888, (fnPacketProcess*)serverProcessProtocol, 10);
+	g_sHall.pServer = netServerCreate(
+		10, 888, (fnPacketProcess*)serverProcessProtocol, 10
+	);
 	netRun();
 
 	simDestroy();
@@ -37,35 +39,35 @@ void simCreate(void) {
 	UBYTE (*op)(UBYTE);
 
   // TODO(#2): Load dimensions from config
-  g_sSim.ubWidth = 20;
-  g_sSim.ubHeight = 9;
+  g_sHall.ubWidth = 20;
+  g_sHall.ubHeight = 9;
 
 	// Generate storage fields
 	logWrite("Generating storage...");
-	g_sSim.pFields = memAlloc(g_sSim.ubWidth * sizeof(UBYTE*));
-	for(x = g_sSim.ubWidth; x--;) {
-		g_sSim.pFields[x] = memAlloc(g_sSim.ubHeight);
-		memset(g_sSim.pFields[x], FIELD_EMPTY, g_sSim.ubHeight);
+	g_sHall.pFields = memAlloc(g_sHall.ubWidth * sizeof(UBYTE*));
+	for(x = g_sHall.ubWidth; x--;) {
+		g_sHall.pFields[x] = memAlloc(g_sHall.ubHeight);
+		memset(g_sHall.pFields[x], FIELD_EMPTY, g_sHall.ubHeight);
 	}
 
 	// Generate platforms
 	logWrite("Generating platforms...");
 	op = (1?even:odd); // TODO(#2): Read even/odd from config
-	g_sSim.ubPlatformCount = (g_sSim.ubHeight >> 1) << 1;
-	g_sSim.pPlatforms = memAlloc(g_sSim.ubPlatformCount * sizeof(tPlatform));
+	g_sHall.ubPlatformCount = (g_sHall.ubHeight >> 1) << 1;
+	g_sHall.pPlatforms = memAlloc(g_sHall.ubPlatformCount * sizeof(tPlatform));
 	ubPlatform = 0;
-	for(y = g_sSim.ubHeight-1; --y;)
+	for(y = g_sHall.ubHeight-1; --y;)
 		if(op(y)) {
 			// Left platform
 			platformInit(ubPlatform++, 0, y, PLATFORM_OUT);
 			// Right platform
-			platformInit(ubPlatform++, g_sSim.ubWidth-1, y, PLATFORM_IN);
+			platformInit(ubPlatform++, g_sHall.ubWidth-1, y, PLATFORM_IN);
 		}
 
 	// Generate arms
 	logWrite("Generating arms...");
-	armInit(ARM_A, 0, 4, 6, g_sSim.ubWidth >> 1);
-	armInit(ARM_B, 4, 8, 6, g_sSim.ubHeight >> 1);
+	armInit(ARM_A, 0, 4, 6, g_sHall.ubWidth >> 1);
+	armInit(ARM_B, 4, 8, 6, g_sHall.ubHeight >> 1);
 
 	logSuccess("Simulation created");
 }
@@ -76,14 +78,14 @@ void simDestroy(void) {
 	// TODO(#9): Stop simulation process timer
 
 	// Free platforms
-  memFree(g_sSim.pPlatforms);
+  memFree(g_sHall.pPlatforms);
 
 	// Free storage fields
-	for(x = g_sSim.ubWidth; x--;)
-		memFree(g_sSim.pFields[x]);
-	memFree(g_sSim.pFields);
+	for(x = g_sHall.ubWidth; x--;)
+		memFree(g_sHall.pFields[x]);
+	memFree(g_sHall.pFields);
 
 	logSuccess("Simulation destroyed");
 }
 
-tSim g_sSim;
+tHall g_sHall;

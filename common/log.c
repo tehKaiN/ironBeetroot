@@ -19,7 +19,7 @@ void logSetColor(UBYTE ubColor) {
 		FOREGROUND_GREEN | FOREGROUND_INTENSITY,                  // Green
 		FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY, // Yellow
 		FOREGROUND_RED | FOREGROUND_INTENSITY,                    // Red
-		FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN, FOREGROUND_INTENSITY
+		FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
 	};
 	SetConsoleTextAttribute(
 		GetStdHandle(STD_OUTPUT_HANDLE), pColorCodes[ubColor]
@@ -63,6 +63,7 @@ void logPrintDate(void) {
 	pTimeInfo = localtime(&lTimeStamp);
 
   strftime(szDateBfr, LOG_DATE_BUFFER_SIZE, "[%H:%M:%S]", pTimeInfo);
+	logSetColor(LOG_COLOR_GREY);
   printf("%s", szDateBfr);
   fprintf(g_sLogManager.pFile, "%s", szDateBfr);
 }
@@ -71,7 +72,6 @@ void logWriteColor(UBYTE ubColor, const char *szFnName, char *szFmt, ...) {
 	va_list vaArgs;
 
 	uv_mutex_lock(&g_sLogManager.sMutex);
-	logSetColor(LOG_COLOR_GREY);
 	logPrintDate();
 	printf("[%s] ", szFnName);
 	fprintf(g_sLogManager.pFile, "[%s] ", szFnName);
@@ -83,6 +83,7 @@ void logWriteColor(UBYTE ubColor, const char *szFnName, char *szFmt, ...) {
 	va_end(vaArgs);
 	putc('\n', stdout);
 	fputc('\n', g_sLogManager.pFile);
+	fflush(g_sLogManager.pFile);
 	uv_mutex_unlock(&g_sLogManager.sMutex);
 }
 
@@ -95,11 +96,12 @@ void logBinary(void *pData, UWORD uwSize) {
 	printf("Bin(%u): ", uwSize);
 	fprintf(g_sLogManager.pFile, "Bin(%u): ", uwSize);
 	for(i = 0; i != uwSize; ++i) {
-    printf("%0hX ", ((UBYTE*)pData)[i]);
-    fprintf(g_sLogManager.pFile, "%0hX ", ((UBYTE*)pData)[i]);
+    printf("%02hX ", ((UBYTE*)pData)[i]);
+    fprintf(g_sLogManager.pFile, "%02hX ", ((UBYTE*)pData)[i]);
 	}
 	putc('\n', stdout);
 	fputc('\n', g_sLogManager.pFile);
+	fflush(g_sLogManager.pFile);
 	uv_mutex_unlock(&g_sLogManager.sMutex);
 }
 

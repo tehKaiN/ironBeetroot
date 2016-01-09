@@ -2,7 +2,7 @@
 #include "../common/net/net.h"
 
 #include "arm.h"
-#include "symulacja.h"
+#include "hall.h"
 
 const BYTE g_pDirDeltaX[] = {0,  0,  0,  1, -1}; // 0, N, S, E, W
 const BYTE g_pDirDeltaY[] = {0, -1,  1,  0,  0}; // 0, N, S, E, W
@@ -12,9 +12,9 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
 
   // Determine arm
   if(ubArmId == ARM_A)
-		pArm = &g_sSim.sArmA;
+		pArm = &g_sHall.sArmA;
 	else if(ubArmId == ARM_B)
-		pArm = &g_sSim.sArmB;
+		pArm = &g_sHall.sArmB;
   else {
 		logError("Unknown arm id: %hu", ubArmId);
 		return;
@@ -138,7 +138,7 @@ void armProcessCmd(tArm *pArm) {
 					logError("Package dropped from height by arm %hu", pArm->ubId);
 				}
 				else {
-					ubField = g_sSim.pFields[pArm->uwX>>8][pArm->uwY>>8];
+					ubField = g_sHall.pFields[pArm->uwX>>8][pArm->uwY>>8];
 					if(ubField & FIELD_PLATFORM) {
 						// TODO: find platform ptr
 						// TODO: Drop package

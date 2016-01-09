@@ -4,17 +4,22 @@
 #include "../common/packet.h"
 #include "../common/net/server.h"
 
-void serverProcessProtocol(tNetServer *pServer, tNetConn *pClientConn, tPacket *pPacket) {
+void serverProcessProtocol(
+	tNetServer *pServer, tNetConn *pClientConn, tPacket *pPacket
+) {
 
-	if(pClientConn->ubType == CLIENT_TYPE_UNKNOWN && pPacket->sHead.ubType != PACKET_HELLO) {
-		logError("Client 0x%p doesn't want to ID itself\n", pClientConn);
+	if(
+		pClientConn->ubType == CLIENT_TYPE_UNKNOWN &&
+		pPacket->sHead.ubType != PACKET_SETTYPE
+	) {
+		logError("Client 0x%p doesn't want to id himself\n", pClientConn);
 		netServerRmClient(pClientConn);
 		return;
 	}
 
 	switch(pPacket->sHead.ubType) {
-		case PACKET_HELLO:
-			serverProcessHello(pClientConn, pPacket);
+		case PACKET_SETTYPE:
+			serverProcessSetType(pClientConn, (tPacketSetType *)pPacket);
 			break;
 		default:
 			logWarning("Unknown packet type: %hu",
@@ -29,37 +34,49 @@ void serverProcessProtocol(tNetServer *pServer, tNetConn *pClientConn, tPacket *
 	}
 }
 
-void serverProcessHello(tNetConn *pClient, tPacket *pPacket) {
+void serverProcessSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
 	tNetServer *pServer;
 	UBYTE ubNewClientType;
+	tPacketSetTypeResponse sResponse;
 
 	// Sanity check
-	ubNewClientType = pPacket->sHello.ubClientType;
-	pServer = &pClient->pClientServer->sServer;
+	ubNewClientType = pPacket->ubClientType;
+	pServer = &pClientConn->pClientServer->sServer;
 	if(ubNewClientType >= CLIENT_TYPES) {
 		logError(
 			"Client 0x%p attempts to set type to %hu",
 			ubNewClientType
 		);
-		netServerRmClient(pClient);
+		netServerRmClient(pClientConn);
     return;
 	}
-	if(pClient->ubType != CLIENT_TYPE_UNKNOWN) {
+	if(pClientConn->ubType != CLIENT_TYPE_UNKNOWN) {
 		logError(
 			"Client 0x%p type change attempt: '%s' (%hu) -> '%s' (%hu)",
-			pClient,
-			g_szClientTypes[pClient->ubType], pClient->ubType,
-			g_szClientTypes[ubNewClientType], ubNewClientType
+			pClientConn,
+			g_pClientTypes[pClientConn->ubType], pClientConn->ubType,
+			g_pClientTypes[ubNewClientType], ubNewClientType
 		);
-		netServerRmClient(pClient);
+		netServerRmClient(pClientConn);
 		return;
 	}
 
 	uv_mutex_lock(&pServer->sListMutex);
-	pClient->ubType = ubNewClientType;
+	pClientConn->ubType = ubNewClientType;
 	uv_mutex_unlock(&pServer->sListMutex);
 	logWrite(
 		"Client 0x%p identified as '%s' (%hu)",
-		pClient, g_szClientTypes[pClient->ubType], pClient->ubType
+		pClientConn, g_pClientTypes[pClientConn->ubType], pClientConn->ubType
 	);
+
+	packetMakeHead(
+		&sResponse.sHead, PACKET_R_SETTYPE, sizeof(tPacketSetTypeResponse)
+	);
+	sResponse.ubIsOk = 1;
+	netSend(pClientConn, (tPacket*)&sResponse, netReadAfterWrite);
 }
+
+
+
+
+

@@ -3,16 +3,13 @@
 
 #include "types.h"
 
-#define CLIENT_TYPES 7
-#define CLIENT_TYPE_UNKNOWN 0
-#define CLIENT_TYPE_RAMIE 1
-#define CLIENT_TYPE_LOGISTYKA 2
-#define CLIENT_TYPE_NADANIE 3
-#define CLIENT_TYPE_ODBIOR 4
-#define CLIENT_TYPE_WIZUALIZACJA 5
-#define CLIENT_TYPE_SYMULACJA 6
-
-extern const char *g_szClientTypes[CLIENT_TYPES];
+#define CLIENT_TYPES 6
+#define CLIENT_TYPE_UNKNOWN  0
+#define CLIENT_TYPE_ARM      1
+#define CLIENT_TYPE_LEADER   2
+#define CLIENT_TYPE_GIVETAKE 3
+#define CLIENT_TYPE_SHOW     4
+#define CLIENT_TYPE_HALL     5
 
 #define PACKET_RESPONSE          128
 
@@ -26,25 +23,21 @@ extern const char *g_szClientTypes[CLIENT_TYPES];
 
 #define PACKET_R_SETTYPE         (PACKET_RESPONSE | PACKET_SETTYPE)
 
-/// Nadanie & odbior packets
-#define PACKET_GETPLATFORMLIST   4
-#define PACKET_GETPLATFORMSTATE  5
-#define PACKET_GETPLATFORMINFO   6
-#define PACKET_ADDPACKAGE        7
-#define PACKET_GRABPACKAGE       8
+/// giveTake packets
+#define PACKET_GETPLATFORMINFO   4
+#define PACKET_UPDATEPLATFORMS   5
 
-#define PACKET_R_GETPLATFORMLIST  (PACKET_RESPONSE | PACKET_GETPLATFORMLIST)
-#define PACKET_R_GETPLATFORMSTATE (PACKET_RESPONSE | PACKET_GETPLATFORMSTATE)
 #define PACKET_R_GETPLATFORMINFO  (PACKET_RESPONSE | PACKET_GETPLATFORMINFO)
-#define PACKET_R_ADDPACKAGE       (PACKET_RESPONSE | PACKET_ADDPACKAGE)
-#define PACKET_R_GRABPACKAGE      (PACKET_RESPONSE | PACKET_GRABPACKAGE)
-// TODO: Logistyka packets
-// TODO: Ramie packets
-// TODO: Wizualizacja packets
+#define PACKET_R_UPDATEPLATFORMS  (PACKET_RESPONSE | PACKET_UPDATEPLATFORMS)
+/// TODO: leader packets
+/// TODO: arm packets
+/// TODO: show packets
+
+//******************************************************************* STRUCTS **
 
 /**
- * Empty packet struct
- * Acts as header for more complex packets
+ * Packet header
+ * Can be used to send empty packets
  */
 typedef struct _tPacketHead{
 	UBYTE ubType;         /// Packet type, 0 is illegal
@@ -52,6 +45,10 @@ typedef struct _tPacketHead{
 	UWORD uwRand;         /// Random value, for obfuscating encryption pattern
 } tPacketHead;
 
+/**
+ * Abstract packet - common ancestor
+ * Can be cast to other packets
+ */
 typedef struct _tPacket{
 	tPacketHead sHead;
 	UBYTE ubData[255-sizeof(tPacketHead)];
@@ -70,27 +67,39 @@ typedef struct _tPacketSetTypeResponse{
 /**
  * Platform data packet
  */
-typedef struct _tPacketPlatformList{
+ typedef struct _tPlatformInfo{
+		tPacketHead sHead;
+    UBYTE ubPlatformSend;
+    UBYTE ubPlatformRecv;
+ } tPacketPlatformInfo;
+
+ /**
+  * Update platforms packet
+  * Leaves package in hall if possible
+  */
+typedef struct _tPacketUpdatePlatforms{
 	tPacketHead sHead;
-	UBYTE ubPlatformCount;
-} tPacketPlatformList;
+	UBYTE ubPlatformDst;
+} tPacketUpdatePlatforms;
 
-typedef struct _tPacketPlatformState{
+/**
+ * Response to tPacketUpdatePlatforms
+ * Tells if package was placed on send platform
+ * Brings package form receive platform
+ */
+typedef struct _tPacketUpdatePlatformsResponse{
 	tPacketHead sHead;
-  UBYTE ubId;
-  UBYTE ubHasPackage;
-} tPacketPlatformState;
+  UBYTE ubPlaced;
+  UBYTE ubGrabbed;
+  UBYTE ubRecvPackageId;
+} tPacketUpdatePlatformsResponse;
 
-typedef struct _tPacketPlatformInfo{
-	tPacketPlatformState sState;
-  UBYTE ubX;
-  UBYTE ubY;
-	char szName[16];
-} tPacketPlatformInfo;
+//***************************************************************** FUNCTIONS **
 
-void packetMakeEmpty(
-	INOUT tPacket *pPacket,
-	IN UBYTE ubType
+void packetMakeHead(
+	INOUT tPacketHead *pPacket,
+	INOUT UBYTE ubType,
+	INOUT UBYTE ubSize
 );
 
 void packetMakeSetType(
@@ -98,7 +107,13 @@ void packetMakeSetType(
 	IN UBYTE ubClientType
 );
 
-#define packetMakeAlive(pPacket) packetMakeEmpty(pPacket, PACKET_ALIVE)
-#define packetMakeBye(pPacket) packetMakeEmpty(pPacket, PACKET_BYE)
+#define packetMakeEmpty(pPacket, ubType) \
+	packetMakeHead(pPacket, ubType, sizeof(tPacketHead))
+#define packetMakeAlive(pPacket) \
+	packetMakeEmpty(pPacket, PACKET_ALIVE)
+#define packetMakeBye(pPacket) \
+	packetMakeEmpty(pPacket, PACKET_BYE)
+
+extern const char *g_pClientTypes[CLIENT_TYPES];
 
 #endif // GUARD_COMMON_PACKET_H

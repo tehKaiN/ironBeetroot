@@ -65,7 +65,6 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
 
 	// Check connection validity
 	pConn = (tNetConn*)(pClientStream->data);
-	pClientServer = pConn->pClientServer;
 	if(!pConn) {
 		logError("Packet from null connection");
 		uv_close((uv_handle_t*) pClientStream, 0);
@@ -76,17 +75,21 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
 			uv_close((uv_handle_t*) pClientStream, 0);
 			return;
 	}
+
+	// Check for read errors
+	pClientServer = pConn->pClientServer;
 	if(lDataLength < 0) {
 		if(pClientServer->ubType == NET_CLIENT) {
-			logError("Server connection lost");
+			logError("Connection to server lost");
 			netClientReconnect((tNetClient*)pClientServer, lDataLength);
 		}
 		else {
-			logError("Client connection lost");
+			logError("Connection to client lost");
       netServerRmClient(pConn);
 		}
 		return;
 	}
+
   // Is there anything to read?
   if(!lDataLength) {
 		logWarning("Empty buffer");
@@ -94,7 +97,9 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
   }
 
 	// Process packets
-	netUpdateConnTime(pConn);
+	if(pClientServer->ubType == NET_SERVER)
+		netUpdateConnTime(pConn);
+
 	// TODO(#1): Make following as cb (protocol-specific code)
 	ulBufPos = 0;
 	ubPacketOK = 0;
@@ -111,7 +116,6 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
 		else
       netServerRmClient(pConn);
 	}
-
 	memFree(pBuf->base);
 }
 
@@ -178,12 +182,13 @@ void netUpdateConnTime(tNetConn *pConn) {
 
 void netSend(tNetConn *pConn, tPacket *pPacket, uv_write_cb pOnWrite) {
 	uv_buf_t sBuf;
-	uv_write_t sWriteRequest;
+	uv_write_t *pWriteRequest;
 
+	pWriteRequest = memAlloc(sizeof(uv_write_t));
 	sBuf.base = (char *)pPacket;
 	sBuf.len = pPacket->sHead.ubPacketLength;
 
-	uv_write(&sWriteRequest, pConn->pStream, &sBuf, 1, pOnWrite);
+	uv_write(pWriteRequest, pConn->pStream, &sBuf, 1, pOnWrite);
 }
 
 void netReadAfterWrite(uv_write_t* pWriteRequest, LONG lStatus) {

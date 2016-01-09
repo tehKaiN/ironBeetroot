@@ -3,7 +3,7 @@
 #include "../log.h"
 #include "../packet.h"
 
-void netClientCreate(
+tNetClient *netClientCreate(
 	char *szIP, UWORD uwPort,
 	fnOnConnect pOnConnect, fnPacketProcess pPacketProcess
 ) {
@@ -13,7 +13,7 @@ void netClientCreate(
 
 	if(strlen(szIP) > 11) {
 		logError("Suspicious IP: %s", szIP);
-		return;
+		return 0;
 	}
 
 	// Setup net list node
@@ -35,8 +35,10 @@ void netClientCreate(
 
 	pClient->sSrvConn.pClientServer = pClientServer;
 	pClient->sSrvConn.pStream = (uv_stream_t*)&pClientServer->sTCP;
+	pClientServer->sTCP.data = &pClient->sSrvConn;
 
 	++g_sNetManager.ubClientCount;
+	return pClient;
 }
 
 void netClientDestroy(tNetClient *pClient) {

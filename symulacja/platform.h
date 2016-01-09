@@ -14,7 +14,6 @@ typedef struct _tPlatform{
   UBYTE ubFieldX;
   UBYTE ubFieldY;
   UBYTE ubType;       /// See PLATFORM_* macros
-  char *szName;       /// Displayable name
   tPackage *pPackage; /// Currently laying package, 0 if empty
 } tPlatform;
 

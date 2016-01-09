@@ -1,9 +1,11 @@
-#ifndef SYMULACJA_H
-#define SYMULACJA_H
+#ifndef GUARD_HALL_HALL_H
+#define GUARD_HALL_HALL_H
 
 #include <uv.h>
 
 #include "../common/types.h"
+#include "../common/net/net.h"
+#include "../common/net/server.h"
 
 #include "package.h"
 #include "arm.h"
@@ -16,6 +18,7 @@
 #define FIELD_ARMB 4
 
 typedef struct _tSim{
+	tNetServer *pServer;
 	ULONG ulPackageCount;  /// Total package count
 	UBYTE ubPlatformCount; /// Platform count
 	UBYTE ubWidth;         /// Storage width  - field array X
@@ -24,7 +27,7 @@ typedef struct _tSim{
 	tPlatform *pPlatforms; /// Array of platforms
 	tArm sArmA;            /// HE HE HE...
 	tArm sArmB;            /// Secondary (lower) arm
-} tSim;
+} tHall;
 
 void simCreate(void);
 
@@ -34,6 +37,6 @@ void simUpdate(
 	IN uv_timer_t *pTimer
 );
 
-extern tSim g_sSim;
+extern tHall g_sHall;
 
-#endif // SYMULACJA_H
+#endif // GUARD_HALL_HALL_H

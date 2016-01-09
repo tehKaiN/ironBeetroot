@@ -10,9 +10,9 @@ void serverProcessProtocol(
 	IN tPacket *pPacket
 );
 
-void serverProcessHello(
+void serverProcessSetType(
 	IN tNetConn *pClient,
-	IN tPacket *pPacket
+	IN tPacketSetType *pPacket
 );
 
 #endif // GUARD_SERVERPROCESS_H
