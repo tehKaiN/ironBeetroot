@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1452004116 source:c:\users\jacek\documents\github\ironbeetroot\common\log.c
+	<stdio.h>
+	<time.h>
+	<stdarg.h>
+	<uv.h>
+	"log.h"
+	"../common/types.h"
+
+1452004116 c:\users\jacek\documents\github\ironbeetroot\common\log.h
+	<stdio.h>
+	<uv.h>
+	"types.h"
+
+1450805191 c:\users\jacek\documents\github\ironbeetroot\common\types.h
+	<stdint.h>
+	<windows.h>
+
