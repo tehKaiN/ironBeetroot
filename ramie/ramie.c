@@ -3,6 +3,7 @@
 #include "../common/net/net.h"
 #include "../common/net/client.h"
 #include "../common/packet.h"
+// TODO(#2): config
 #include "ramie.h"
 #include "process.h"
 
