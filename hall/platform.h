@@ -41,4 +41,9 @@ tPlatform *platformGetById(
 	IN UBYTE ubId
 );
 
+tPlatform *platformGetByPos(
+	IN UBYTE ubX,
+	IN UBYTE ubY
+);
+
 #endif // GUARD_HALL_PLATFORM_H

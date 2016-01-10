@@ -41,7 +41,7 @@ typedef struct _tNetManager{
 typedef struct _tNetConn{
 	uv_stream_t *pStream;                    /// UV Connection stream
 	UBYTE ubActive;                          /// 1: connected, 0: not
-	UBYTE ubType;                             // TODO: remove, add: void *data
+	UBYTE ubType;                             // TODO(#1): remove, add: void *data
 	time_t llLastPacketTime;                 /// Last received packet timestamp
 	struct _tNetClientServer *pClientServer;
 } tNetConn;

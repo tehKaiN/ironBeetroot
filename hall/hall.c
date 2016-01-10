@@ -76,7 +76,7 @@ void hallCreate(void) {
 void hallDestroy(void) {
 	UBYTE x;
 
-	// TODO(#9): Stop simulation process timer
+	// TODO(#2): Stop simulation process timer
 
 	// Free platforms
 	uv_mutex_destroy(&g_sHall.sPlatformMutex);

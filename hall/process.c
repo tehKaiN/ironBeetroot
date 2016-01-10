@@ -98,7 +98,7 @@ void processSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
 
 	netSend(pClientConn, (tPacket*)&sResponse, 0);
 	if(!sResponse.ubIsOk) {
-		// TODO: Close client
+		// TODO(#3): Close client
 	}
 }
 
@@ -185,7 +185,7 @@ void processUpdatePlatforms(
 	pPlatform = platformGetByClient(pClientConn, PLATFORM_OUT);
 	if(!pPlatform) {
 		logError("No recv platform for client 0x%p", pClientConn);
-		// TODO: Close client
+		// TODO(#3): Close client
 		// ...
 		return;
 	}
@@ -200,7 +200,7 @@ void processUpdatePlatforms(
 	pPlatform = platformGetByClient(pClientConn, PLATFORM_IN);
 	if(!pPlatform) {
 		logError("No send platform for client 0x%p", pClientConn);
-		// TODO: Close client
+		// TODO(#3): Close client
 		// ...
 		return;
 	}
@@ -224,7 +224,7 @@ UBYTE _hallCheckClient(
 		"Access denied for client 0x%p (%s) @ %s",
 		pClientConn, g_pClientTypes[pClientConn->ubType], szFnName
 	);
-	// TODO: Close client
+	// TODO(#3): Close client
 	// ...
 
 	return 0;

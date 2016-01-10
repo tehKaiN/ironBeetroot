@@ -31,9 +31,9 @@
 
 #define PACKET_R_GETPLATFORMINFO  (PACKET_RESPONSE | PACKET_GETPLATFORMINFO)
 #define PACKET_R_UPDATEPLATFORMS  (PACKET_RESPONSE | PACKET_UPDATEPLATFORMS)
-/// TODO: leader packets
-/// TODO: arm packets
-/// TODO: show packets
+/// TODO(#9): leader packets
+/// TODO(#9): arm packets
+/// TODO(#9): show packets
 
 //******************************************************************* STRUCTS */
 

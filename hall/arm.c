@@ -108,7 +108,7 @@ void armStartCmd(tArm *pArm) {
 }
 
 void armProcessCmd(tArm *pArm) {
-	UBYTE ubField;
+	tPlatform *pPlatform;
 	UBYTE ubCmd;
 	UBYTE ubDx, ubDy;
 
@@ -132,30 +132,41 @@ void armProcessCmd(tArm *pArm) {
 				return;
 			break;
 		case ARM_CMD_OPEN:
-			if(pArm->pPackage) {
-				if(pArm->ubState & ARM_STATE_UP) {
-					// TODO: Destroy package
-					logError("Package dropped from height by arm %hu", pArm->ubId);
-				}
-				else {
-					ubField = g_sHall.pFields[pArm->uwX>>8][pArm->uwY>>8];
-					if(ubField & FIELD_PLATFORM) {
-						// TODO: find platform ptr
-						// TODO: Drop package
-					}
-					else {
-						logError("Package delivered not to platform by arm %hu", pArm->ubId);
-						// TODO: Destroy package
-					}
-				}
+			pArm->ubState &= 0xFF ^ ARM_STATE_CLOSED;
+
+			if(!pArm->pPackage)
+				break;
+
+			// Package dropped from height
+			if(pArm->ubState & ARM_STATE_UP) {
+				logError("Package dropped from height by arm %hu", pArm->ubId);
+				packageDestroy(pArm->pPackage);
 				pArm->pPackage = 0;
+				break;
 			}
+
+			// Package placed on platform
+			pPlatform = platformGetByPos(pArm->uwX>>8, pArm->uwY>>8);
+			if(pPlatform) {
+				pPlatform->pPackage = pArm->pPackage;
+				pArm->pPackage = 0;
+				break;
+			}
+
+			// Package dropped
+			logError("Package dropped not on platform by arm %hu", pArm->ubId);
+			packageDestroy(pArm->pPackage);
+			pArm->pPackage = 0;
+
 			break;
 		case ARM_CMD_CLOSE:
+			pArm->ubState &= 0xFF ^ ARM_STATE_OPEN;
 			break;
 		case ARM_CMD_HIGHEN:
+			pArm->ubState &= 0xFF ^ ARM_STATE_DOWN;
 			break;
 		case ARM_CMD_LOWER:
+			pArm->ubState &= 0xFF ^ ARM_STATE_UP;
 			break;
 	}
 	pArm->ubCmdState = ARM_CMDSTATE_DONE;

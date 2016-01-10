@@ -72,4 +72,21 @@ tPlatform *platformGetById(UBYTE ubId) {
 	return 0;
 }
 
+tPlatform *platformGetByPos(UBYTE ubX, UBYTE ubY) {
+	UBYTE i;
+	tPlatform *pPlatform;
+
+	// Assign new platform
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		pPlatform = &g_sHall.pPlatforms[i];
+		if(pPlatform->ubFieldX == ubX && pPlatform->ubFieldY == ubY) {
+			uv_mutex_unlock(&g_sHall.sPlatformMutex);
+			return pPlatform;
+		}
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+	return 0;
+}
+
 // TODO(#7): Unreserve platforms on client close

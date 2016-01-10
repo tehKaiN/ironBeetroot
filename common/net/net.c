@@ -44,7 +44,7 @@ void netDestroy(void) {
 		pNode = pNode->pNext;
 	}
 
-	// TODO(#2): Stop after all client/servers are dead
+	// TODO(#1): Stop after all client/servers are dead
 	if(!g_sNetManager.ubIsRunning) {
 		uv_loop_close(g_sNetManager.pLoop);
 		g_sNetManager.ubIsRunning = 0;
@@ -199,7 +199,7 @@ void netSend(tNetConn *pConn, tPacket *pPacket, uv_write_cb pOnWrite) {
 void netReadOnWrite(uv_write_t* pWriteRequest, LONG lStatus) {
   if (lStatus < 0) {
     logError("UV: %s\n", uv_strerror(lStatus));
-    // TODO (#1): reconnect?
+    // TODO (#2): reconnect?
     return;
   }
 	uv_read_start(pWriteRequest->handle, netAllocBfr, netOnRead);
@@ -208,7 +208,7 @@ void netReadOnWrite(uv_write_t* pWriteRequest, LONG lStatus) {
 void netNopOnWrite(uv_write_t* pWriteRequest, LONG lStatus) {
   if (lStatus < 0) {
     logError("UV: %s\n", uv_strerror(lStatus));
-    // TODO (#1): reconnect?
+    // TODO (#2): reconnect?
     return;
   }
 	memFree(pWriteRequest);

@@ -3,7 +3,7 @@
 #include "config.h"
 
 void configLoad(void) {
-	// TODO: load from .ini
+	// TODO(#2): load from .ini
 
 	logSuccess("Config loaded\n");
 }

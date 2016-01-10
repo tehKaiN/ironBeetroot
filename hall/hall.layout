@@ -1,79 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="platform.c" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\net\client.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1543" topLine="37" />
-		</Cursor>
-	</File>
-	<File name="platform.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="392" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="process.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4614" topLine="138" />
-		</Cursor>
-	</File>
-	<File name="process.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="610" topLine="4" />
-		</Cursor>
-	</File>
-	<File name="..\common\net\server.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3411" topLine="90" />
-		</Cursor>
-	</File>
-	<File name="..\common\packet.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="644" topLine="27" />
-		</Cursor>
-	</File>
-	<File name="..\common\list.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1186" topLine="45" />
-		</Cursor>
-	</File>
-	<File name="..\common\mem.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="226" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="..\common\list.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="806" topLine="16" />
-		</Cursor>
-	</File>
-	<File name="..\common\net\net.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2729" topLine="29" />
-		</Cursor>
-	</File>
-	<File name="..\common\log.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1854" topLine="72" />
-		</Cursor>
-	</File>
-	<File name="..\common\types.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="61" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="..\common\net\client.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="189" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="hall.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1058" topLine="44" />
-		</Cursor>
-	</File>
-	<File name="..\common\net\server.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="127" topLine="0" />
+			<Cursor1 position="2725" topLine="81" />
 		</Cursor>
 	</File>
 	<File name="config.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -81,9 +11,24 @@
 			<Cursor1 position="318" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="..\common\log.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\packet.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1029" topLine="25" />
+			<Cursor1 position="503" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="package.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="279" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\common\types.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="61" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="arm.c" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4449" topLine="138" />
 		</Cursor>
 	</File>
 	<File name="config.c" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -91,14 +36,14 @@
 			<Cursor1 position="81" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="..\common\net\net.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="hall.c" open="1" top="1" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5375" topLine="115" />
+			<Cursor1 position="1800" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="arm.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\net\server.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2144" topLine="0" />
+			<Cursor1 position="127" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="hall.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -106,24 +51,19 @@
 			<Cursor1 position="838" topLine="6" />
 		</Cursor>
 	</File>
-	<File name="..\common\packet.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\packet.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="503" topLine="0" />
+			<Cursor1 position="952" topLine="27" />
 		</Cursor>
 	</File>
-	<File name="..\common\mem.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="platform.c" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="943" topLine="0" />
+			<Cursor1 position="1960" topLine="56" />
 		</Cursor>
 	</File>
-	<File name="..\common\net\client.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\mem.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2725" topLine="81" />
-		</Cursor>
-	</File>
-	<File name="arm.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3731" topLine="85" />
+			<Cursor1 position="226" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="package.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -131,9 +71,69 @@
 			<Cursor1 position="378" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="package.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\common\list.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="279" topLine="0" />
+			<Cursor1 position="1186" topLine="45" />
+		</Cursor>
+	</File>
+	<File name="..\common\mem.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="943" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\common\net\client.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="189" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\common\net\net.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1076" topLine="29" />
+		</Cursor>
+	</File>
+	<File name="..\common\net\server.c" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3695" topLine="91" />
+		</Cursor>
+	</File>
+	<File name="arm.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2144" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="platform.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1005" topLine="11" />
+		</Cursor>
+	</File>
+	<File name="..\common\log.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1854" topLine="72" />
+		</Cursor>
+	</File>
+	<File name="process.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5357" topLine="195" />
+		</Cursor>
+	</File>
+	<File name="..\common\list.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="806" topLine="16" />
+		</Cursor>
+	</File>
+	<File name="process.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="610" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="..\common\log.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1029" topLine="25" />
+		</Cursor>
+	</File>
+	<File name="..\common\net\net.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1129" topLine="28" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
