@@ -3,11 +3,13 @@
 
 #include "types.h"
 
+#define MAX_PLATFORMS 100
+
 #define CLIENT_TYPES 6
 #define CLIENT_TYPE_UNKNOWN  0
 #define CLIENT_TYPE_ARM      1
 #define CLIENT_TYPE_LEADER   2
-#define CLIENT_TYPE_GIVETAKE 3
+#define CLIENT_TYPE_CUSTOMER 3
 #define CLIENT_TYPE_SHOW     4
 #define CLIENT_TYPE_HALL     5
 
@@ -23,7 +25,7 @@
 
 #define PACKET_R_SETTYPE         (PACKET_RESPONSE | PACKET_SETTYPE)
 
-/// giveTake packets
+/// customer packets
 #define PACKET_GETPLATFORMINFO   4
 #define PACKET_UPDATEPLATFORMS   5
 
@@ -33,7 +35,7 @@
 /// TODO: arm packets
 /// TODO: show packets
 
-//******************************************************************* STRUCTS **
+//******************************************************************* STRUCTS */
 
 /**
  * Packet header
@@ -65,12 +67,12 @@ typedef struct _tPacketSetTypeResponse{
 } tPacketSetTypeResponse;
 
 /**
- * Platform data packet
+ * Platform info - list of available destinations
  */
- typedef struct _tPlatformInfo{
-		tPacketHead sHead;
-    UBYTE ubPlatformSend;
-    UBYTE ubPlatformRecv;
+ typedef struct _tPacketPlatformInfo{
+	tPacketHead sHead;
+	UBYTE ubDestCount;
+	UBYTE pDestList[MAX_PLATFORMS];
  } tPacketPlatformInfo;
 
  /**
@@ -94,16 +96,16 @@ typedef struct _tPacketUpdatePlatformsResponse{
   UBYTE ubRecvPackageId;
 } tPacketUpdatePlatformsResponse;
 
-//***************************************************************** FUNCTIONS **
+//***************************************************************** FUNCTIONS */
 
-void packetMakeHead(
-	INOUT tPacketHead *pPacket,
-	INOUT UBYTE ubType,
-	INOUT UBYTE ubSize
+void packetPrepare(
+	INOUT tPacket *pPacket,
+	IN UBYTE ubType,
+	IN UBYTE ubSize
 );
 
 void packetMakeSetType(
-	INOUT tPacket *pPacket,
+	INOUT tPacketSetType *pPacket,
 	IN UBYTE ubClientType
 );
 

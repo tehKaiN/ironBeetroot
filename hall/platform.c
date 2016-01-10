@@ -15,4 +15,61 @@ void platformInit(UBYTE ubIdx, UBYTE ubFieldX, UBYTE ubFieldY, UBYTE ubType) {
 	pPlatform->ubFieldY = ubFieldY;
 	pPlatform->ubId = ubIdx;
 	pPlatform->ubType = ubType;
+	pPlatform->pOwner = 0;
 }
+
+UBYTE platformReserveForClient(tNetConn *pClientConn, UBYTE ubType, UBYTE *pId){
+	UBYTE i;
+	tPlatform *pPlatform;
+
+	// Assign new platform
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		pPlatform = &g_sHall.pPlatforms[i];
+		if(pPlatform->ubType == ubType && !pPlatform->pOwner) {
+			pPlatform->pOwner = pClientConn;
+			if(pId)
+				*pId = pPlatform->ubId;
+			uv_mutex_unlock(&g_sHall.sPlatformMutex);
+			return 1;
+		}
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+	return 0;
+}
+
+tPlatform *platformGetByClient(tNetConn *pClientConn, UBYTE ubType) {
+	UBYTE i;
+	tPlatform *pPlatform;
+
+	// Assign new platform
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		pPlatform = &g_sHall.pPlatforms[i];
+		if(pPlatform->ubType == ubType && pPlatform->pOwner == pClientConn) {
+			uv_mutex_unlock(&g_sHall.sPlatformMutex);
+			return pPlatform;
+		}
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+	return 0;
+}
+
+tPlatform *platformGetById(UBYTE ubId) {
+	UBYTE i;
+	tPlatform *pPlatform;
+
+	// Assign new platform
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		pPlatform = &g_sHall.pPlatforms[i];
+		if(pPlatform->ubId == ubId) {
+			uv_mutex_unlock(&g_sHall.sPlatformMutex);
+			return pPlatform;
+		}
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+	return 0;
+}
+
+// TODO(#7): Unreserve platforms on client close

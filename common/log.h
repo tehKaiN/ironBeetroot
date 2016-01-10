@@ -49,9 +49,13 @@ void logBinary(
 
 extern tLogManager g_sLogManager;
 
-#define logWrite(...) logWriteColor(LOG_COLOR_GREY, __func__, __VA_ARGS__)
-#define logError(...) logWriteColor(LOG_COLOR_RED, __func__, __VA_ARGS__)
-#define logWarning(...) logWriteColor(LOG_COLOR_YELLOW, __func__, __VA_ARGS__)
-#define logSuccess(...) logWriteColor(LOG_COLOR_GREEN, __func__, __VA_ARGS__)
+#define logWrite(...) \
+	logWriteColor(LOG_COLOR_GREY, __func__, __VA_ARGS__)
+#define logError(...) \
+	logWriteColor(LOG_COLOR_RED, __func__, __VA_ARGS__)
+#define logWarning(...) \
+	logWriteColor(LOG_COLOR_YELLOW, __func__, __VA_ARGS__)
+#define logSuccess(...) \
+	logWriteColor(LOG_COLOR_GREEN, __func__, __VA_ARGS__)
 
 #endif // COMMON_LOG_H

@@ -119,7 +119,12 @@ void netSend(
 	IN uv_write_cb pOnWrite
 );
 
-void netReadAfterWrite(
+void netReadOnWrite(
+	IN uv_write_t* pWriteRequest,
+	IN LONG lStatus
+);
+
+void netNopOnWrite(
 	IN uv_write_t* pWriteRequest,
 	IN LONG lStatus
 );

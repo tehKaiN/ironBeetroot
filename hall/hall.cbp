@@ -83,10 +83,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="platform.h" />
-		<Unit filename="serverProcess.c">
+		<Unit filename="process.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="serverProcess.h" />
+		<Unit filename="process.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

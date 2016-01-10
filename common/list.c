@@ -5,7 +5,7 @@
 tList *listCreate(UWORD uwNodeDataSize) {
 	tList *pList;
 
-	pList = memAlloc(sizeof(tList));
+	pList = malloc(sizeof(tList));
 	pList->uwNodeDataSize = uwNodeDataSize;
 	pList->pHead = 0;
 	pList->pTail = 0;
@@ -20,15 +20,15 @@ void listDestroy(tList *pList) {
 
 	// Cleanup
 	uv_mutex_destroy(&pList->sMutex);
-	memFree(pList);
+	free(pList);
 }
 
 
 tListNode *listCreateNode(tList *pList) {
 	tListNode *pNode;
 
-	pNode = memAlloc(sizeof(tListNode));
-	pNode->pData = memAlloc(pList->uwNodeDataSize);
+	pNode = malloc(sizeof(tListNode));
+	pNode->pData = malloc(pList->uwNodeDataSize);
 
 	return pNode;
 }
@@ -91,8 +91,8 @@ void listRmNode(tList *pList, tListNode *pNode) {
 		pPrev->pNext = pNode->pNext;
 	uv_mutex_unlock(&pList->sMutex);
 
-  memFree(pNode->pData);
-  memFree(pNode);
+  free(pNode->pData);
+  free(pNode);
 }
 
 void listRmAll(tList *pList) {
@@ -102,8 +102,8 @@ void listRmAll(tList *pList) {
 	pNode = pList->pHead;
 	while(pNode) {
 		pNext = pNode->pNext;
-		memFree(pNode->pData);
-		memFree(pNode);
+		free(pNode->pData);
+		free(pNode);
 		pNode = pNext;
 	}
 	uv_mutex_unlock(&pList->sMutex);

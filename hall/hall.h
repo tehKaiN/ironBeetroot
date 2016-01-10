@@ -18,15 +18,19 @@
 #define FIELD_ARMB 4
 
 typedef struct _tSim{
-	tNetServer *pServer;
-	ULONG ulPackageCount;  /// Total package count
-	UBYTE ubPlatformCount; /// Platform count
-	UBYTE ubWidth;         /// Storage width  - field array X
-	UBYTE ubHeight;        /// Storage height - field array Y
-	UBYTE **pFields;       /// 2D Field array
-	tPlatform *pPlatforms; /// Array of platforms
-	tArm sArmA;            /// HE HE HE...
-	tArm sArmB;            /// Secondary (lower) arm
+	tNetServer *pServer;       /// Server handle
+	ULONG ulPackageCount;      /// Total package count
+															// Field fields
+	UBYTE ubWidth;             /// Storage width  - field array X
+	UBYTE ubHeight;            /// Storage height - field array Y
+	UBYTE **pFields;           /// 2D Field array
+															// Platform fields
+	tPlatform *pPlatforms;     /// Array of platforms
+	uv_mutex_t sPlatformMutex; /// pPlatforms & ubPlatformCount Mutex
+	UBYTE ubPlatformCount;     /// Length of pPlatforms
+															// Arm fields
+	tArm sArmA;                /// HE HE HE...
+	tArm sArmB;                /// Secondary (lower) arm
 } tHall;
 
 void hallCreate(void);

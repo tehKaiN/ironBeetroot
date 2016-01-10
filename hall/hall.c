@@ -4,17 +4,17 @@
 
 #include "hall.h"
 #include "config.h"
-#include "serverProcess.h"
+#include "process.h"
 
 int main(void) {
 	logCreate("hall.log");
-	memCreate();
+	memCreate("hall_mem.log");
 	configLoad();
 	netCreate();
 	hallCreate();
 
 	g_sHall.pServer = netServerCreate(
-		10, 888, (fnPacketProcess*)serverProcessProtocol, 10
+		10, 888, (fnPacketProcess*)processProtocol, 10
 	);
 	netRun();
 
@@ -52,6 +52,7 @@ void hallCreate(void) {
 
 	// Generate platforms
 	logWrite("Generating platforms...");
+	uv_mutex_init(&g_sHall.sPlatformMutex);
 	op = (1?even:odd); // TODO(#2): Read even/odd from config
 	g_sHall.ubPlatformCount = (g_sHall.ubHeight >> 1) << 1;
 	g_sHall.pPlatforms = memAlloc(g_sHall.ubPlatformCount * sizeof(tPlatform));
@@ -78,6 +79,7 @@ void hallDestroy(void) {
 	// TODO(#9): Stop simulation process timer
 
 	// Free platforms
+	uv_mutex_destroy(&g_sHall.sPlatformMutex);
   memFree(g_sHall.pPlatforms);
 
 	// Free storage fields

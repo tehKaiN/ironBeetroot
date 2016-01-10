@@ -32,6 +32,7 @@ void netRun(void) {
 	);
 	g_sNetManager.ubIsRunning = 1;
 	uv_run(g_sNetManager.pLoop, UV_RUN_DEFAULT);
+	logSuccess("End");
 }
 
 void netDestroy(void) {
@@ -54,7 +55,9 @@ void netDestroy(void) {
 	memFree(g_sNetManager.pLoop);
 }
 
-void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *pBuf) {
+void netOnRead(
+	uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *pBuf
+) {
 	tPacket sPacket;
 	ULONG ulBufPos;
 	tNetConn *pConn;
@@ -96,10 +99,10 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
 		return;
   }
 
-	// Process packets
 	if(pClientServer->ubType == NET_SERVER)
 		netUpdateConnTime(pConn);
 
+	// Process packets
 	// TODO(#1): Make following as cb (protocol-specific code)
 	ulBufPos = 0;
 	ubPacketOK = 0;
@@ -114,9 +117,11 @@ void netOnRead(uv_stream_t *pClientStream, ssize_t lDataLength, const uv_buf_t *
 		if(pClientServer->ubType == NET_CLIENT)
 			uv_close((uv_handle_t*)&pClientServer->sTCP, 0);
 		else
-      netServerRmClient(pConn);
+			netServerRmClient(pConn);
 	}
-	memFree(pBuf->base);
+
+	if(pBuf->base)
+		memFree(pBuf->base);
 }
 
 void netDestroyClientServer(tNetClientServer *pClientServer) {
@@ -149,7 +154,7 @@ UBYTE netGetPacket(tPacket *pPacket, const uv_buf_t *pBuf, ULONG *pBufPos, LONG 
 	}
 
   // Does packet exceed buffer size bounds?
-  if(pHead->ubPacketLength > *pBufPos + pBuf->len) {
+  if(pHead->ubPacketLength > lDataLength - *pBufPos) {
 		logError(
 			"Buffer overflow attempt! Buffer: %lu, packet: %lu+%lu",
 			pHead->ubPacketLength,
@@ -191,7 +196,7 @@ void netSend(tNetConn *pConn, tPacket *pPacket, uv_write_cb pOnWrite) {
 	uv_write(pWriteRequest, pConn->pStream, &sBuf, 1, pOnWrite);
 }
 
-void netReadAfterWrite(uv_write_t* pWriteRequest, LONG lStatus) {
+void netReadOnWrite(uv_write_t* pWriteRequest, LONG lStatus) {
   if (lStatus < 0) {
     logError("UV: %s\n", uv_strerror(lStatus));
     // TODO (#1): reconnect?
@@ -200,6 +205,15 @@ void netReadAfterWrite(uv_write_t* pWriteRequest, LONG lStatus) {
 	uv_read_start(pWriteRequest->handle, netAllocBfr, netOnRead);
 }
 
+void netNopOnWrite(uv_write_t* pWriteRequest, LONG lStatus) {
+  if (lStatus < 0) {
+    logError("UV: %s\n", uv_strerror(lStatus));
+    // TODO (#1): reconnect?
+    return;
+  }
+	memFree(pWriteRequest);
+}
+
 void netAllocBfr(uv_handle_t *pHandle, size_t ulSuggestedSize, uv_buf_t *pBuf) {
-	 *pBuf = uv_buf_init(memAlloc(sizeof(ulSuggestedSize)), ulSuggestedSize);
+	 *pBuf = uv_buf_init(memAlloc(ulSuggestedSize), ulSuggestedSize);
 }

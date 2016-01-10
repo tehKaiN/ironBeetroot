@@ -2,13 +2,24 @@
 #define COMMON_MEM_H
 
 #include "types.h"
+#include "list.h"
 
 typedef struct _tMemManager{
   ULONG ulMemUsed; /// Current memory usage in bytes
   ULONG ulMaxUsed; /// Peak memory usage in bytes
+  tList *pList;    /// Allocation list
+  UWORD uwIndent;
+  FILE *pLog;
 } tMemManager;
 
-void memCreate(void);
+typedef struct _tAllocEntry{
+	void *pAddr;
+	ULONG ulSize;
+} tMemAllocEntry;
+
+void memCreate(
+	IN char *szLogName
+);
 
 void memDestroy(void);
 

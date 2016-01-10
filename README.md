@@ -1,2 +1,2 @@
 # ironBeetroot
-Small project done for industrial IT class.
+Small project done for Industrial IT class.
