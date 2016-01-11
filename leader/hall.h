@@ -1,0 +1,7 @@
+#ifndef GUARD_LEADER_HALL_H
+#define GUARD_LEADER_HALL_H
+
+
+
+#endif // GUARD_LEADER_HALL_H
+

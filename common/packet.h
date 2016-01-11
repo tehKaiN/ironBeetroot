@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-#define MAX_PLATFORMS 100
+#define MAX_PLATFORMS 50
+#define MAX_PACKAGES 50
 
 #define CLIENT_TYPES 6
 #define CLIENT_TYPE_UNKNOWN  0
@@ -25,15 +26,38 @@
 
 #define PACKET_R_SETTYPE         (PACKET_RESPONSE | PACKET_SETTYPE)
 
-/// customer packets
+/// Customer packets
 #define PACKET_GETPLATFORMINFO   4
 #define PACKET_UPDATEPLATFORMS   5
 
-#define PACKET_R_GETPLATFORMINFO  (PACKET_RESPONSE | PACKET_GETPLATFORMINFO)
-#define PACKET_R_UPDATEPLATFORMS  (PACKET_RESPONSE | PACKET_UPDATEPLATFORMS)
-/// TODO(#9): leader packets
-/// TODO(#9): arm packets
-/// TODO(#9): show packets
+#define PACKET_R_GETPLATFORMINFO (PACKET_RESPONSE | PACKET_GETPLATFORMINFO)
+#define PACKET_R_UPDATEPLATFORMS (PACKET_RESPONSE | PACKET_UPDATEPLATFORMS)
+
+/// Leader packets
+#define PACKET_GETPLATFORMLIST   6
+#define PACKET_GETPACKAGELIST    7
+#define PACKET_SETARMCOMMANDS    8
+
+#define PACKET_R_GETPLATFORMLIST (PACKET_RESPONSE | PACKET_GETPLATFORMLIST)
+#define PACKET_R_GETPACKAGELIST  (PACKET_RESPONSE | PACKET_GETPACKAGELIST)
+#define PACKET_R_SETARMCOMMANDS  (PACKET_RESPONSE | PACKET_SETARMCOMMANDS)
+
+/// Arm packets
+#define PACKET_ARMSTATUS         9
+#define PACKET_POLLSENSORS       10
+#define PACKET_SETACTUATORS      11
+
+#define PACKET_R_ARMSTATUS       (PACKET_RESPONSE | PACKET_ARMSTATUS)
+#define PACKET_R_POLLSENSORS     (PACKET_RESPONSE | PACKET_POLLSENSORS)
+#define PACKET_R_SETACTUATORS    (PACKET_RESPONSE | PACKET_SETACTUATORS)
+
+/// TODO(#9): Show packets
+
+/// Defines for PACKET_R_GETPACKAGELIST
+
+#define PACKAGE_POS_ARMA     1
+#define PACKAGE_POS_ARMB     2
+#define PACKAGE_POS_PLATFORM 3
 
 //******************************************************************* STRUCTS */
 
@@ -56,18 +80,25 @@ typedef struct _tPacket{
 	UBYTE ubData[255-sizeof(tPacketHead)];
 } tPacket;
 
+/**
+ * PACKET_SETTYPE
+ */
 typedef struct _tPacketSetType{
 	tPacketHead sHead;
 	UBYTE ubClientType;
 } tPacketSetType;
 
+/**
+ * PACKET_R_SETTYPE
+ */
 typedef struct _tPacketSetTypeResponse{
 	tPacketHead sHead;
 	UBYTE ubIsOk;
 } tPacketSetTypeResponse;
 
 /**
- * Platform info - list of available destinations
+ * PACKET_R_GETPLATFORMINFO
+ * list of available destinations
  */
  typedef struct _tPacketPlatformInfo{
 	tPacketHead sHead;
@@ -76,8 +107,8 @@ typedef struct _tPacketSetTypeResponse{
  } tPacketPlatformInfo;
 
  /**
-  * Update platforms packet
-  * Leaves package in hall if possible
+  * PACKET_UPDATEPLATFORMS
+  * leaves package in hall if possible
   */
 typedef struct _tPacketUpdatePlatforms{
 	tPacketHead sHead;
@@ -85,7 +116,7 @@ typedef struct _tPacketUpdatePlatforms{
 } tPacketUpdatePlatforms;
 
 /**
- * Response to tPacketUpdatePlatforms
+ * PACKET_R_GETPLATFORMINFO
  * Tells if package was placed on send platform
  * Brings package form receive platform
  */
@@ -95,6 +126,35 @@ typedef struct _tPacketUpdatePlatformsResponse{
   UBYTE ubGrabbed;
   UBYTE ubRecvPackageId;
 } tPacketUpdatePlatformsResponse;
+
+/**
+ * PACKET_R_GETPLATFORMLIST
+ */
+
+typedef struct _tPacketPlatformList{
+	struct {
+		UBYTE ubId;
+    UBYTE ubX;
+    UBYTE ubY;
+    UBYTE ubType;
+	} pPlatforms[MAX_PLATFORMS];
+	UBYTE ubPlatformCount;
+	UBYTE ubHallWidth;
+	UBYTE ubHallHeight;
+} tPacketPlatformList;
+
+/**
+ * PACKET_R_GETPACKAGELIST
+ */
+typedef struct _tPacketPackageList{
+  UBYTE ubPackageCount;
+  struct {
+		UBYTE ubId;
+		UBYTE ubPosType;         /// arm A, arm B, platform
+		UBYTE ubPlatformCurrId;
+		UBYTE ubPlatformDestId;
+  } pPackages[MAX_PACKAGES];
+} tPacketPackageList;
 
 //***************************************************************** FUNCTIONS */
 

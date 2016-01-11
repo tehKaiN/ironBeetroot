@@ -58,7 +58,6 @@ void customerOnConnect(tNetClient *pClient) {
 		g_pClientTypes[CLIENT_TYPE_CUSTOMER], CLIENT_TYPE_CUSTOMER
 	);
 	packetMakeSetType(&sPacket, CLIENT_TYPE_CUSTOMER);
-	logWrite("start send");
 	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netReadOnWrite);
 }
 
