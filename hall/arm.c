@@ -8,7 +8,7 @@ const BYTE g_pDirDeltaX[] = {0,  0,  0,  1, -1}; // 0, N, S, E, W
 const BYTE g_pDirDeltaY[] = {0, -1,  1,  0,  0}; // 0, N, S, E, W
 
 void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed, UBYTE ubFieldPosX) {
-  tArm *pArm;
+  tHallArm *pArm;
 
   // Determine arm
   if(ubArmId == ARM_A)
@@ -40,7 +40,7 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
 }
 
 void armUpdate(uv_timer_t *pTimer) {
-	tArm *pArm;
+	tHallArm *pArm;
 
 	pArm = pTimer->data;
 	uv_mutex_lock(&pArm->sMutex);
@@ -61,7 +61,7 @@ void armUpdate(uv_timer_t *pTimer) {
 	uv_mutex_unlock(&pArm->sMutex);
 }
 
-void armGetNextCmd(tArm *pArm) {
+void armGetNextCmd(tHallArm *pArm) {
 	if(0) { // TODO: Current command idx was last in buffer
 		// No more commands available
 		pArm->ubCmdState = ARM_CMDSTATE_IDLE;
@@ -72,7 +72,7 @@ void armGetNextCmd(tArm *pArm) {
 	pArm->ubCmdState = ARM_CMDSTATE_NEW;
 }
 
-void armStartCmd(tArm *pArm) {
+void armStartCmd(tHallArm *pArm) {
 	UBYTE ubCmd;
 	UBYTE ubDx, ubDy;
 
@@ -107,7 +107,7 @@ void armStartCmd(tArm *pArm) {
 	pArm->ubCmdState = ARM_CMDSTATE_BUSY;
 }
 
-void armProcessCmd(tArm *pArm) {
+void armProcessCmd(tHallArm *pArm) {
 	tPlatform *pPlatform;
 	UBYTE ubCmd;
 	UBYTE ubDx, ubDy;

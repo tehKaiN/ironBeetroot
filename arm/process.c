@@ -37,7 +37,6 @@ void processSetTypeResponse(tPacketSetTypeResponse *pResponse) {
 }
 
 void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
-	tPacketActuators sActuators;
 
 	uv_mutex_lock(&g_sArm.sSensorMutex);
 	g_sArm.uwCurrX = pPacket->uwX;
@@ -46,20 +45,9 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 	uv_mutex_unlock(&g_sArm.sSensorMutex);
 
 	// TODO: Check if current command is fulfilled
-	if(1) {
-		// Stop all actuators
-		packetPrepare(
-			(tPacket *)&sActuators, PACKET_SETACTUATORS, sizeof(tPacketActuators)
-		);
-		sActuators->ubGrab = ;
-		sActuators->ubHeight = 0;
-		netSend(g_sArm.pClient.sSrvConn, (tPacket*)sActurators, netNopOnWrite);
-
-		// TODO: Process next command
-		// ...
-
-		// TODO: Set actuators to new values
-		// ...
+	if(cmdIsDone()) {
+		cmdStopActuators();
+		cmdProcessNext();
 	}
 	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 100, 0);
 }
@@ -78,5 +66,7 @@ void processSetCommands(tPacketArmCommands *pPacket) {
 	uv_mutex_lock(&g_sArm.sCmdMutex);
   memcpy(g_sArm.pCmds, pPacket->pCmds, pPacket->ubCmdCount);
   g_sArm.ubCmdCount = pPacket->ubCmdCount;
+  g_sArm.ubCmdCurr = 0;
+  g_sArm.ubCmdState = ARM_CMDSTATE_NEW;
 	uv_mutex_unlock(&g_sArm.sCmdMutex);
 }

@@ -1,6 +1,8 @@
 #ifndef GUARD_ARM_ARM_H
 #define GUARD_ARM_ARM_H
 
+#include "../common/arm.h"
+
 #define READY_ID 1
 
 typedef struct _tArm{
@@ -17,6 +19,7 @@ typedef struct _tArm{
 	UWORD uwDestX;             /// Destination coords
 	UWORD uwDestY;             /// ------||----------
 	UBYTE pCmds[MAX_COMMANDS]; /// Command array
+	UBYTE ubCmdCurr;           /// Current cmd index
 	UBYTE ubCmdCount;          /// Current command count
 	UBYTE ubCmdState;          /// See ARM_CMDSTATE_* flags
 	uv_mutex_t sCmdMutex;      /// Command mutex
