@@ -2,12 +2,15 @@
 #define GUARD_ARM_ARM_H
 
 #include "../common/arm.h"
+#include "../common/net/net.h"
 
-#define READY_ID 1
+#define READY_ID_HALL 1
+#define READY_ID_LEADER 2
 
 typedef struct _tArm{
 	                            // Network stuff
-	tNetClient *pClient;       /// Connection to Hall
+	tNetClient *pClientHall;   /// Connection to Hall
+	tNetClient *pClientLeader; /// Connection to Leader
 	UBYTE ubReady;             /// See READY_* flags
 	uv_timer_t sSensorTimer;   /// Sensor update timer
 														  // Sensor info
@@ -25,21 +28,19 @@ typedef struct _tArm{
 	uv_mutex_t sCmdMutex;      /// Command mutex
 } tArm;
 
-void ramieProcessPacket(
-	IN tNetClientServer *pClientServer,
-	IN tNetConn *pClient,
-	IN tPacket *pPacket
-);
+void armCreate(void);
+
+void armDestroy(void);
 
 void armOnConnect(
 	IN tNetClient *pClient
 );
 
-void armCreate(void);
+void armSensorUpdate(
+	IN uv_timer_t *pTimer
+);
 
-void armDestroy(void);
-
-tArm g_sArm;
+extern tArm g_sArm;
 
 #endif // GUARD_ARM_ARM_H
 

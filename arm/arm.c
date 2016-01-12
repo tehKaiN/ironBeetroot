@@ -13,7 +13,8 @@ int main(void){
 	netCreate();
 	armCreate();
 
-	g_sArm.pClient = netClientCreate("127.0.0.1", 888, armOnConnect, processPacket);
+	g_sArm.pClientHall = netClientCreate("127.0.0.1", 888, armOnConnect, processHallPacket);
+	g_sArm.pClientLeader = netClientCreate("127.0.0.1", 0x888, armOnConnect, processLeaderPacket);
 	netRun();
 
 	armDestroy();
@@ -29,15 +30,15 @@ void armCreate(void) {
 	uv_mutex_init(&g_sArm.sSensorMutex);
 	uv_mutex_init(&g_sArm.sCmdMutex);
 
-	uv_timer_init(g_sNetManager.pLoop, &g_sArm.sSensorUpdate);
-	uv_timer_start(&g_sArm.sSensorUpdate, armSensorUpdate, 100, 0);
+	uv_timer_init(g_sNetManager.pLoop, &g_sArm.sSensorTimer);
+	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 100, 0);
 }
 
 void armDestroy(void) {
 	uv_mutex_destroy(&g_sArm.sSensorMutex);
 	uv_mutex_destroy(&g_sArm.sCmdMutex);
 
-	uv_timer_stop(&g_sArm.sSensorUpdate);
+	uv_timer_stop(&g_sArm.sSensorTimer);
 }
 
 void armOnConnect(tNetClient *pClient) {
@@ -57,12 +58,14 @@ void armOnConnect(tNetClient *pClient) {
 void armSensorUpdate(uv_timer_t *pTimer) {
   tPacketHead sPacket;
 
-	if(!(g_sArm.ubReady & READY_ID))
+	if(!(g_sArm.ubReady & READY_ID_HALL))
 		return;
 
   packetPrepare(
 		(tPacket*)&sPacket, PACKET_GETSENSORINFO, sizeof(tPacketHead)
 	);
 
-	netSend(g_sArm.pClient->sSrvConn, (tPacket*)sPacket, netNopOnWrite);
+	netSend(&g_sArm.pClientHall->sSrvConn, (tPacket*)&sPacket, netNopOnWrite);
 }
+
+tArm g_sArm;
