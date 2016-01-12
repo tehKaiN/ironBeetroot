@@ -147,8 +147,9 @@ void armRoute(
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
         }
         // Did we lift the package?
+        if(pCmdStr->ubCmdCount>=workCountHelp+4){
         // Is the current line in X-axis the same as for the final platform?
-        if(pCmdStr->ubCmdCount>=workCountHelp+4 && workXDrop!=pDst->ubX){
+        if(workXDrop!=pDst->ubX){
 						// Change the X-axis position of the arm
 					if(workXDrop>pDst->ubX){
 						pCmdStr->pCmds[pCmdStr->ubCmdCount]=4;
@@ -208,6 +209,7 @@ void armRoute(
 						pCmdStr->ubCmdCount+=1;
 						pCmdStr->pCmds[pCmdStr->ubCmdCount]=0;
 						done=1;
+        }
         }
 	}
 }
