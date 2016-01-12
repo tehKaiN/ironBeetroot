@@ -34,6 +34,7 @@
 		<Linker>
 			<Add library="C:\Program Files (x86)\libuv\libuv.lib" />
 		</Linker>
+		<Unit filename="../common/arm.h" />
 		<Unit filename="../common/list.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -67,6 +68,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="arm.h" />
+		<Unit filename="cmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cmd.h" />
 		<Unit filename="process.c">
 			<Option compilerVar="CC" />
 		</Unit>

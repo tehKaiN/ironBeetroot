@@ -69,7 +69,7 @@
 	"../list.h"
 	"../packet.h"
 
-1452543751 d:\prg\_git\ironbeetroot\common\packet.h
+1452609202 d:\prg\_git\ironbeetroot\common\packet.h
 	"types.h"
 
 1452452289 source:d:\prg\_git\ironbeetroot\common\net\net.c
@@ -94,7 +94,7 @@
 	"packet.h"
 	"log.h"
 
-1452603812 source:d:\prg\_git\ironbeetroot\arm\arm.c
+1452627705 source:d:\prg\_git\ironbeetroot\arm\arm.c
 	"../common/mem.h"
 	"../common/log.h"
 	"../common/net/net.h"
@@ -103,12 +103,30 @@
 	"arm.h"
 	"process.h"
 
-1452603705 d:\prg\_git\ironbeetroot\arm\arm.h
+1452627749 d:\prg\_git\ironbeetroot\arm\arm.h
+	"../common/arm.h"
+	"../common/net/net.h"
 
-1452603510 d:\prg\_git\ironbeetroot\arm\process.h
+1452629116 d:\prg\_git\ironbeetroot\arm\process.h
 	"../common/types.h"
 	"../common/net/net.h"
 
-1452603348 source:d:\prg\_git\ironbeetroot\arm\process.c
+1452631677 source:d:\prg\_git\ironbeetroot\arm\process.c
 	"process.h"
+	"../common/log.h"
+	"arm.h"
+	"cmd.h"
+
+1452630051 d:\prg\_git\ironbeetroot\common\arm.h
+
+1452630141 source:d:\prg\_git\ironbeetroot\arm\cmd.c
+	"cmd.h"
+	"../common/log.h"
+	"../common/arm.h"
+	"../common/packet.h"
+	"arm.h"
+
+1452629488 d:\prg\_git\ironbeetroot\arm\cmd.h
+	"../common/types.h"
+	"../common/packet.h"
 

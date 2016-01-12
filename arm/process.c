@@ -1,16 +1,34 @@
 #include "process.h"
+#include "../common/log.h"
+#include "arm.h"
+#include "cmd.h"
 
-void processPacket(tNetClientServer *pCS, tNetConn *pClient, tPacket *pPacket) {
+void processHallPacket(
+	tNetClientServer *pCS, tNetConn *pClient, tPacket *pPacket
+) {
 
 	switch(pPacket->sHead.ubType) {
 		case PACKET_R_SETTYPE:
 			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
+			g_sArm.ubReady |= READY_ID_HALL;
 			break;
 		case PACKET_R_GETSENSORINFO:
 			processSensorInfoResponse((tPacketSensorInfo *)pPacket);
 			break;
-		case PACKET_GETARMSTATE:
-			processArmState();
+		default:
+			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
+			logBinary(pPacket, pPacket->sHead.ubPacketLength);
+	}
+}
+
+void processLeaderPacket(
+	tNetClientServer *pCS, tNetConn *pClient, tPacket *pPacket
+) {
+
+	switch(pPacket->sHead.ubType) {
+		case PACKET_R_SETTYPE:
+			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
+			g_sArm.ubReady |= READY_ID_LEADER;
 			break;
 		case PACKET_SETARMCOMMANDS:
 			processSetCommands((tPacketArmCommands*)pPacket);
@@ -29,7 +47,6 @@ void processSetTypeResponse(tPacketSetTypeResponse *pResponse) {
 		return;
 	}
 
-	g_sArm.ubReady |= READY_ID;
 	logSuccess(
 		"Identified as %s",
 		g_pClientTypes[CLIENT_TYPE_CUSTOMER]
@@ -44,16 +61,38 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 	g_sArm.ubState = pPacket->ubState;
 	uv_mutex_unlock(&g_sArm.sSensorMutex);
 
-	// TODO: Check if current command is fulfilled
 	if(cmdIsDone()) {
 		cmdStopActuators();
-		cmdProcessNext();
+		cmdGoNext();
+
+		if(g_sArm.ubCmdState == ARM_CMDSTATE_IDLE) {
+			tPacketHead sPacket;
+
+			// Report idle state to arm
+      packetPrepare((tPacket *)&sPacket, PACKET_ARMIDLE, sizeof(tPacketHead));
+      netSend(
+				&g_sArm.pClientLeader->sSrvConn, (tPacket *)&sPacket, netNopOnWrite
+			);
+		}
+		else {
+			tPacketArmProgress sPacket;
+
+			// Report done cmd
+			packetPrepare(
+				(tPacket *)&sPacket, PACKET_ARMPROGRESS, sizeof(tPacketArmProgress)
+			);
+			uv_mutex_lock(&g_sArm.sCmdMutex);
+			sPacket.ubCmdDone = g_sArm.ubCmdCurr-1;
+			uv_mutex_unlock(&g_sArm.sCmdMutex);
+			netSend(
+				&g_sArm.pClientLeader->sSrvConn, (tPacket *)&sPacket, netNopOnWrite
+			);
+
+			// Do next cmd
+			cmdProcessCurr();
+		}
 	}
 	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 100, 0);
-}
-
-void processArmState(void) {
-	// TODO: processArmState
 }
 
 void processSetCommands(tPacketArmCommands *pPacket) {
@@ -62,11 +101,12 @@ void processSetCommands(tPacketArmCommands *pPacket) {
 		logError("Too many commands: %hu > %hu", pPacket->ubCmdCount, MAX_COMMANDS);
 		return;
 	}
-	// TODO: processSetCommands
+
 	uv_mutex_lock(&g_sArm.sCmdMutex);
   memcpy(g_sArm.pCmds, pPacket->pCmds, pPacket->ubCmdCount);
   g_sArm.ubCmdCount = pPacket->ubCmdCount;
   g_sArm.ubCmdCurr = 0;
   g_sArm.ubCmdState = ARM_CMDSTATE_NEW;
 	uv_mutex_unlock(&g_sArm.sCmdMutex);
+	cmdProcessCurr();
 }
