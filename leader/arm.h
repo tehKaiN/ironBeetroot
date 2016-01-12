@@ -2,6 +2,7 @@
 #define GUARD_LEADER_ARM_H
 
 #include "../common/types.h"
+#include "../common/packet.h"
 #include <uv.h>
 #include "platform.h"
 struct _tLeaderPlatform;
@@ -57,8 +58,7 @@ void armRoute(
 	IN tLeaderArm *pArm,
 	IN struct _tLeaderPlatform *pSrc,
 	IN struct _tLeaderPlatform *pDst,
-	OUT UBYTE *pCmdList,
-	OUT UBYTE *pCmdCount
+	IN tPacketArmCommands *pCmdStr
 );
 
 #endif // GUARD_LEADER_ARM_H

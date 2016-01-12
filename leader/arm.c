@@ -9,8 +9,7 @@ void armUpdate(uv_timer_t *pTimer) {
 	tLeaderPackage *pPackage;
 	tLeaderPlatform *pDst;
 	tLeaderPlatform *pSrc;
-	UBYTE pCmdList[255];
-	UBYTE ubCmdCount;
+	tPacketArmCommands *pCmdStr;
 
 	// Get idle arm
 	pArm = armGetIdle();
@@ -34,7 +33,7 @@ void armUpdate(uv_timer_t *pTimer) {
 		pDst = pPackage->pPlatformDst;
 
 	// Route way and reserve fields for arm
-	armRoute(pArm, pSrc, pDst, pCmdList, &ubCmdCount);
+	armRoute(pArm, pSrc, pDst, pCmdStr);
 
 	// TODO: Send instruction list to arm
 
@@ -77,13 +76,138 @@ tLeaderPlatform *armGetFreeHelper(tLeaderArm *pArm) {
 
 void armRoute(
 	tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
-	UBYTE *pCmdList, UBYTE *pCmdCount
+	tPacketArmCommands *pCmdStr
 ) {
-	UBYTE ubCmdCount;
-	ubCmdCount = 0;
-	while(pSrc->ubX != pDst->ubX && pSrc->ubY != pDst->ubY) {
-		// TODO: Route
+	UBYTE done;
+	UBYTE workXGrab, workYGrab, workXDrop, workYDrop, workCountHelp, workProxy;
+	UBYTE workCountHelpTwo, workProxyTwo;
+	workXGrab=pArm->ubFieldX;
+	workYGrab=pArm->ubFieldY;
+	workXDrop=pSrc->ubX;
+	workYDrop=pSrc->ubY;
+	workProxy=0;
+	workProxyTwo=0;
+	done=0;
+	pCmdStr->ubCmdCount=0;
+	while(done==0) {
+		// Is arm in correct line in axis X for the starting platform?
+		if(workXGrab!=pSrc->ubX){
+				// Change the X-axis position of the arm
+            if(workXGrab>pSrc->ubX){
+                pCmdStr->pCmds[pCmdStr->ubCmdCount]=4;
+                workXGrab-=1;
+                pCmdStr->ubCmdCount+=1;
+            }
+            else{
+                pCmdStr->pCmds[pCmdStr->ubCmdCount]=3;
+                workXGrab+=1;
+                pCmdStr->ubCmdCount+=1;
+            }
+        }
+		// Is arm in correct position in axis Y for the starting platform?
+        if(workYGrab!=pSrc->ubY && workXGrab==pSrc->ubX){
+						// Change the Y-axis position of the arm
+            if(workYGrab>pSrc->ubY){
+                pCmdStr->pCmds[pCmdStr->ubCmdCount]=1;
+                workYGrab-=1;
+                pCmdStr->ubCmdCount+=1;
+            }
+            else{
+                pCmdStr->pCmds[pCmdStr->ubCmdCount]=2;
+                workYGrab+=1;
+                pCmdStr->ubCmdCount+=1;
+            }
+        }
+        // Preparing for lifting the package
+        if(workXGrab==pSrc->ubX && workYGrab==pSrc->ubY && workProxy==0){
+						// Proxy set to avoid entering this code more than once
+						// This is a safe way to conduct lowering, opening
+						// Closing and lifting without weird manipulations on the structs
+            workCountHelp=pCmdStr->ubCmdCount;
+            workProxy+=1;
+        }
+        // Opening
+				if(pCmdStr->ubCmdCount==workCountHelp){
+					pCmdStr->ubCmdCount=+1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
+				}
+				// Lowering
+        if(pCmdStr->ubCmdCount==workCountHelp+1){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=8;
+        }
+        // Closing
+        if(pCmdStr->ubCmdCount==workCountHelp+2){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=7;
+        }
+        // Lifting
+        if(pCmdStr->ubCmdCount==workCountHelp+3){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
+        }
+        // Did we lift the package?
+        // Is the current line in X-axis the same as for the final platform?
+        if(pCmdStr->ubCmdCount>=workCountHelp+4 && workXDrop!=pDst->ubX){
+						// Change the X-axis position of the arm
+					if(workXDrop>pDst->ubX){
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=4;
+						workXDrop-=1;
+						pCmdStr->ubCmdCount+=1;
+					}
+					else{
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=3;
+						workXDrop+=1;
+						pCmdStr->ubCmdCount+=1;
+					}
+        }
+        // Are we in a good line in Y-axis for the final platform?
+        if(workYDrop!=pDst->ubY && workXDrop==pDst->ubX){
+						// Change the Y-axis position of the arm
+					if(workYDrop>pDst->ubY){
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=1;
+						workYDrop-=1;
+						pCmdStr->ubCmdCount+=1;
+					}
+					else{
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=2;
+						workYDrop+=1;
+						pCmdStr->ubCmdCount+=1;
+					}
+        }
+        // Preparing for leaving the package
+        if(workXDrop==pDst->ubX && workYDrop==pDst->ubY && workProxyTwo==0){
+						// Proxy set to avoid entering this code more than once
+						// This is a safe way to conduct lowering, opening
+						// Closing and lifting without weird manipulations on the structs
+					workCountHelpTwo=pCmdStr->ubCmdCount;
+					workProxyTwo+=1;
+        }
+        // Lowering
+				if(pCmdStr->ubCmdCount==workCountHelpTwo){
+					pCmdStr->ubCmdCount=+1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=8;
+				}
+				// Opening
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+1){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
+        }
+        // Lifting
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+2){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
+        }
+        // Closing
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+3){
+					pCmdStr->ubCmdCount+=1;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=7;
+        }
+        // DONE!
+        if(pCmdStr->pCmds[pCmdStr->ubCmdCount]==7){
+						pCmdStr->ubCmdCount+=1;
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=0;
+						done=1;
+        }
 	}
-	pCmdList[ubCmdCount] = ARM_CMD_END;
-	*pCmdCount = ubCmdCount;
 }

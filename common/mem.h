@@ -1,6 +1,7 @@
 #ifndef COMMON_MEM_H
 #define COMMON_MEM_H
 
+#include <stdio.h>
 #include "types.h"
 #include "list.h"
 

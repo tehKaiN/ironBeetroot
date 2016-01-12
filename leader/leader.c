@@ -17,7 +17,7 @@ int main(void) {
 	leaderCreate();
 
 	g_sLeader.pServer = netServerCreate(
-		10, 777, processServerPacket, 10
+		10, 0x888, processServerPacket, 10
 	);
 
 	g_sLeader.pClient = netClientCreate(
