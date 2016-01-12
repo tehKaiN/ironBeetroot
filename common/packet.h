@@ -5,6 +5,7 @@
 
 #define MAX_PLATFORMS 50
 #define MAX_PACKAGES 50
+#define MAX_COMMANDS 200
 
 #define CLIENT_TYPES 6
 #define CLIENT_TYPE_UNKNOWN  0
@@ -43,13 +44,12 @@
 #define PACKET_R_SETARMCOMMANDS  (PACKET_RESPONSE | PACKET_SETARMCOMMANDS)
 
 /// Arm packets
-#define PACKET_ARMSTATUS         9
-#define PACKET_POLLSENSORS       10
-#define PACKET_SETACTUATORS      11
+#define PACKET_GETSENSORINFO     9
+#define PACKET_SETACTUATORS      10
+#define PACKET_ARMPROGRESS       11
+#define PACKET_ARMIDLE           12
 
-#define PACKET_R_ARMSTATUS       (PACKET_RESPONSE | PACKET_ARMSTATUS)
-#define PACKET_R_POLLSENSORS     (PACKET_RESPONSE | PACKET_POLLSENSORS)
-#define PACKET_R_SETACTUATORS    (PACKET_RESPONSE | PACKET_SETACTUATORS)
+#define PACKET_R_GETSENSORINFO   (PACKET_RESPONSE | PACKET_GETSENSORINFO)
 
 /// TODO(#9): Show packets
 
@@ -58,6 +58,16 @@
 #define PACKAGE_POS_ARMA     1
 #define PACKAGE_POS_ARMB     2
 #define PACKAGE_POS_PLATFORM 3
+
+/// Defines for PACKET_SETACTUATORS
+
+#define MOTOR_STOP 0
+#define MOTOR_MINUS 1
+#define MOTOR_PLUS 2
+#define GRAB_CLOSE 0
+#define GRAB_OPEN 1
+#define HEIGHT_UP 0
+#define HEIGHT_DOWN 1
 
 //******************************************************************* STRUCTS */
 
@@ -155,6 +165,40 @@ typedef struct _tPacketPackageList{
 		UBYTE ubPlatformDestId;
   } pPackages[MAX_PACKAGES];
 } tPacketPackageList;
+
+/**
+ * PACKET_R_GETSENSORINFO
+ */
+typedef struct _tPacketSensorInfo{
+	UWORD uwX;
+	UWORD uwY;
+	UBYTE ubState;
+} tPacketSensorInfo;
+
+/**
+ * PACKET_SETACTUATORS
+ */
+typedef struct _tPacketActuators{
+	UBYTE ubMotorX;
+	UBYTE ubMotorY;
+	UBYTE ubHeight;
+	UBYTE ubGrab;
+} tPacketActuators;
+
+/**
+ * PACKET_SETARMCOMMANDS
+ */
+typedef struct _tPacketArmCommands{
+	UBYTE ubCmdCount;
+	UBYTE pCmds[MAX_COMMANDS];
+} tPacketArmCommands;
+
+/**
+ * PACKET_ARMPROGRESS
+ */
+typedef struct _tPacketArmProgress{
+	UBYTE ubCmdDone;
+} tPacketArmProgress;
 
 //***************************************************************** FUNCTIONS */
 
