@@ -2,6 +2,7 @@
 #define GUARD_SHOW_SHOW_H
 
 #include <uv.h>
+#include <SDL.h>
 #include "../common/types.h"
 #include "../common/net/net.h"
 
@@ -15,6 +16,9 @@ typedef struct _tShow{
   UBYTE ubReady;             /// Network ready state
                              // SDL
 	uv_idle_t sSDLIdle;        /// Idle timer for SDL
+	SDL_Window *pWindow;       /// Window handle
+	SDL_Surface *pSurfWnd;     /// Window surface
+	SDL_Event sEvt;
 } tShow;
 
 void showCreate(void);

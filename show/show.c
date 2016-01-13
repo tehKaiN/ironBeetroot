@@ -3,11 +3,13 @@
 #include "../common/mem.h"
 #include "../common/net/client.h"
 #include "process.h"
+#include "gfx.h"
 
-int main(void) {
+int main(int argc, char* args[]) {
 	logCreate("customer.log");
 	memCreate("customer_mem.log");
 	netCreate();
+	gfxCreate();
 	showCreate();
 
 	g_sShow.pClientHall = netClientCreate(
@@ -21,6 +23,7 @@ int main(void) {
 	netRun();
 
 	showDestroy();
+	gfxDestroy();
 	netDestroy();
 	memDestroy();
 	logDestroy();
@@ -35,7 +38,7 @@ void showCreate(void) {
 	// ...
 
 	uv_idle_init(g_sNetManager.pLoop, &g_sShow.sSDLIdle);
-	uv_idle_start(&g_sShow.sSDLIdle, showSDLUpdate);
+	uv_idle_start(&g_sShow.sSDLIdle, gfxIdle);
 }
 
 void showDestroy(void) {
@@ -52,10 +55,6 @@ void showOnConnect(tNetClient *pClient) {
 	);
 	packetMakeSetType(&sPacket, CLIENT_TYPE_SHOW);
 	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netReadOnWrite);
-}
-
-void showSDLUpdate(uv_idle_t *pIdle) {
-  // TODO: SDL update
 }
 
 tShow g_sShow;
