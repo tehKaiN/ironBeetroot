@@ -162,22 +162,22 @@ void armRoute(
 				if(pCmdStr->ubCmdCount==ubWorkCountHelp){
 					// NOTE: Shouldn't ubCmdCount be increased after setting cmd?
 					pCmdStr->ubCmdCount=+1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_OPEN;
 				}
 				// Lowering
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+1){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=8;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_LOWER;
         }
         // Closing
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+2){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=7;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_CLOSE;
         }
         // Lifting
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+3){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_HIGHEN;
         }
         // Did we lift the package?
         if(pCmdStr->ubCmdCount>=ubWorkCountHelp+4 && ubWorkProxyThree==0)
@@ -221,27 +221,28 @@ void armRoute(
         // Lowering
 				if(pCmdStr->ubCmdCount==ubWorkCountHelpTwo && ubWorkProxyThree==1){
 					pCmdStr->ubCmdCount=+1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=8;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_LOWER;
 				}
 				// Opening
         if(pCmdStr->ubCmdCount==ubWorkCountHelpTwo+1 && ubWorkProxyThree==1){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_OPEN;
         }
         // Lifting
         if(pCmdStr->ubCmdCount==ubWorkCountHelpTwo+2 && ubWorkProxyThree==1){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_HIGHEN;
         }
         // Closing
         if(pCmdStr->ubCmdCount==ubWorkCountHelpTwo+3 && ubWorkProxyThree==1){
 					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=7;
+					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_CLOSE;
         }
         // DONE!
-        if(pCmdStr->pCmds[pCmdStr->ubCmdCount]==7 && ubWorkProxyThree==1){
+        if(pCmdStr->pCmds[pCmdStr->ubCmdCount]==ARM_CMD_CLOSE
+					&& ubWorkProxyThree==1){
 						pCmdStr->ubCmdCount+=1;
-						pCmdStr->pCmds[pCmdStr->ubCmdCount]=0;
+						pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_END;
 						ubDone=1;
         }
 
