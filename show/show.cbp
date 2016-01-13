@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="show" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/Debug/show" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../bin/Release/show" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Linker>
+			<Add library="C:\Program Files (x86)\libuv\libuv.lib" />
+		</Linker>
+		<Unit filename="../common/arm.h" />
+		<Unit filename="../common/list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/list.h" />
+		<Unit filename="../common/log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/log.h" />
+		<Unit filename="../common/mem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/mem.h" />
+		<Unit filename="../common/net/client.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/net/client.h" />
+		<Unit filename="../common/net/net.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/net/net.h" />
+		<Unit filename="../common/net/server.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/net/server.h" />
+		<Unit filename="../common/packet.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../common/packet.h" />
+		<Unit filename="../common/types.h" />
+		<Unit filename="process.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="process.h" />
+		<Unit filename="show.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="show.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
