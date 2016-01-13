@@ -108,6 +108,7 @@ void armRoute(
 	tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
 	tPacketArmCommands *pCmdStr
 ) {
+	// NOTE: All todos resolved.
 	// TODO: prefix ub for UBYTEs
 	// TODO: use ARM_CMD_* defines from ../common/arm.h
 	// TODO: use armAddCmd(), should shorten code a bit
@@ -161,6 +162,9 @@ void armRoute(
         // Opening
 				if(pCmdStr->ubCmdCount==ubWorkCountHelp){
 					// NOTE: Shouldn't ubCmdCount be increased after setting cmd?
+					// NOTE: Answer: In this single case it cannot be increased after
+					// setting cmd, because it would override previous cmd, thus
+					// leaving us probably one field away from where we should be
 					pCmdStr->ubCmdCount=+1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_OPEN;
 				}
@@ -178,6 +182,9 @@ void armRoute(
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+3){
 					pCmdStr->ubCmdCount+=1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_HIGHEN;
+					pCmdStr->ubCmdCount+=1; // NOTE: Without this increase it would do
+					// what was the purpose of this manevouer in the beginning, thus
+					// this addition
         }
         // Did we lift the package?
         if(pCmdStr->ubCmdCount>=ubWorkCountHelp+4 && ubWorkProxyThree==0)
