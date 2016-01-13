@@ -2,7 +2,9 @@
 #define GUARD_SHOW_PACKAGE_H
 
 typedef struct _tShowPackage{
-
+  ULONG ulIdx;
+  UWORD uwX;
+  UWORD uwY;
 } tShowPackage;
 
 

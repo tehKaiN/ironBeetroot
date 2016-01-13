@@ -6,8 +6,9 @@
 #define MAX_PLATFORMS 50
 #define MAX_PACKAGES 50
 #define MAX_COMMANDS 200
+#define MAX_CUSTOMERS 50
 
-#define CLIENT_TYPES 6
+#define CLIENT_TYPES         6
 #define CLIENT_TYPE_UNKNOWN  0
 #define CLIENT_TYPE_ARM      1
 #define CLIENT_TYPE_LEADER   2
@@ -37,21 +38,31 @@
 /// Leader packets
 #define PACKET_GETPLATFORMLIST   6
 #define PACKET_GETPACKAGELIST    7
-#define PACKET_SETARMCOMMANDS    8
+#define PACKET_GETARMINFO        8
+#define PACKET_SETARMCOMMANDS    9
+#define PACKET_GETARMPOS         10
 
 #define PACKET_R_GETPLATFORMLIST (PACKET_RESPONSE | PACKET_GETPLATFORMLIST)
 #define PACKET_R_GETPACKAGELIST  (PACKET_RESPONSE | PACKET_GETPACKAGELIST)
+#define PACKET_R_GETARMINFO      (PACKET_RESPONSE | PACKET_GETARMINFO)
 #define PACKET_R_SETARMCOMMANDS  (PACKET_RESPONSE | PACKET_SETARMCOMMANDS)
+#define PACKET_R_GETARMPOS       (PACKET_RESPONSE | PACKET_GETARMPOS)
 
 /// Arm packets
-#define PACKET_GETSENSORINFO     9
-#define PACKET_SETACTUATORS      10
-#define PACKET_ARMPROGRESS       11
-#define PACKET_ARMIDLE           12
+#define PACKET_GETSENSORINFO     11
+#define PACKET_SETACTUATORS      12
+#define PACKET_ARMPROGRESS       13
+#define PACKET_ARMIDLE           14
 
 #define PACKET_R_GETSENSORINFO   (PACKET_RESPONSE | PACKET_GETSENSORINFO)
 
-/// TODO(#9): Show packets
+/// Show packets
+/// Uses also PACKET_GETPLATFORMLIST
+/// Uses also PACKET_GETPACKAGELIST
+/// Uses also PACKET_GETARMINFO
+/// Uses also PACKET_GETARMPOS
+
+#define PACKET_GETCUSTOMERLIST   15
 
 /// Defines for PACKET_R_GETPACKAGELIST
 
@@ -126,7 +137,7 @@ typedef struct _tPacketUpdatePlatforms{
 } tPacketUpdatePlatforms;
 
 /**
- * PACKET_R_GETPLATFORMINFO
+ * PACKET_R_UPDATEPLATFORMS
  * Tells if package was placed on send platform
  * Brings package form receive platform
  */
@@ -167,6 +178,18 @@ typedef struct _tPacketPackageList{
 } tPacketPackageList;
 
 /**
+ * PACKET_R_GETARMINFO
+ */
+typedef struct _tPacketArmInfo{
+	UBYTE ubRangeX1;
+	UBYTE ubRangeY1;
+	UBYTE ubRangeX2;
+	UBYTE ubRangeY2;
+} tPacketArmInfo;
+// TODO(#9): Leader should receive it once from hall(?)
+// TODO(#9): Show should receive it once from hall(?)
+
+/**
  * PACKET_R_GETSENSORINFO
  */
 typedef struct _tPacketSensorInfo{
@@ -194,11 +217,34 @@ typedef struct _tPacketArmCommands{
 } tPacketArmCommands;
 
 /**
+ * PACKET_R_GETARMPOS
+ */
+typedef struct _tPacketArmPos{
+	UBYTE ubFieldX;
+	UBYTE ubFieldY;
+} tPacketArmPos;
+// TODO(#9): Leader should cyclically send PACKET_GETARMPOS to arm
+// TODO(#9): Show should cyclically send PACKET_GETARMPOS to ???
+
+/**
  * PACKET_ARMPROGRESS
  */
 typedef struct _tPacketArmProgress{
-	UBYTE ubCmdDone;
+	UBYTE ubCmdDone;    /// Idx of completed instruction on list
 } tPacketArmProgress;
+
+/**
+ * PACKET_R_GETCUSTOMERLIST
+ */
+typedef struct _tPacketCustomerList{
+	UBYTE ubCustomerCount;          /// Total customer count
+	struct {
+		UBYTE ubId;                   /// Customer id
+		UBYTE ubPlatformSrc;          /// Source platform id
+		UBYTE ubPlatformDst;          /// Destination platform id
+	} pCustomerList[MAX_CUSTOMERS];
+} tPacketCustomerList;
+// TODO: Show should receive it once from Hall
 
 //***************************************************************** FUNCTIONS */
 
