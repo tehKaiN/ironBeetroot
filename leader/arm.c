@@ -80,13 +80,14 @@ void armRoute(
 ) {
 	UBYTE done;
 	UBYTE workXGrab, workYGrab, workXDrop, workYDrop, workCountHelp, workProxy;
-	UBYTE workCountHelpTwo, workProxyTwo;
+	UBYTE workCountHelpTwo, workProxyTwo, workProxyThree;
 	workXGrab=pArm->ubFieldX;
 	workYGrab=pArm->ubFieldY;
 	workXDrop=pSrc->ubX;
 	workYDrop=pSrc->ubY;
 	workProxy=0;
 	workProxyTwo=0;
+	workProxyThree=0;
 	done=0;
 	pCmdStr->ubCmdCount=0;
 	while(done==0) {
@@ -147,9 +148,12 @@ void armRoute(
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
         }
         // Did we lift the package?
-        if(pCmdStr->ubCmdCount>=workCountHelp+4){
+        if(pCmdStr->ubCmdCount>=workCountHelp+4 && workProxyThree==0)
+        {
+           workProxyThree=1;
+        }
         // Is the current line in X-axis the same as for the final platform?
-        if(workXDrop!=pDst->ubX){
+        if(workXDrop!=pDst->ubX && workProxyThree==0){
 						// Change the X-axis position of the arm
 					if(workXDrop>pDst->ubX){
 						pCmdStr->pCmds[pCmdStr->ubCmdCount]=4;
@@ -163,7 +167,7 @@ void armRoute(
 					}
         }
         // Are we in a good line in Y-axis for the final platform?
-        if(workYDrop!=pDst->ubY && workXDrop==pDst->ubX){
+        if(workYDrop!=pDst->ubY && workXDrop==pDst->ubX && workProxyThree==0){
 						// Change the Y-axis position of the arm
 					if(workYDrop>pDst->ubY){
 						pCmdStr->pCmds[pCmdStr->ubCmdCount]=1;
@@ -177,7 +181,7 @@ void armRoute(
 					}
         }
         // Preparing for leaving the package
-        if(workXDrop==pDst->ubX && workYDrop==pDst->ubY && workProxyTwo==0){
+        if(workXDrop==pDst->ubX && workYDrop==pDst->ubY && workProxyTwo==0 && workProxyThree==0){
 						// Proxy set to avoid entering this code more than once
 						// This is a safe way to conduct lowering, opening
 						// Closing and lifting without weird manipulations on the structs
@@ -185,31 +189,31 @@ void armRoute(
 					workProxyTwo+=1;
         }
         // Lowering
-				if(pCmdStr->ubCmdCount==workCountHelpTwo){
+				if(pCmdStr->ubCmdCount==workCountHelpTwo && workProxyThree==0){
 					pCmdStr->ubCmdCount=+1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=8;
 				}
 				// Opening
-        if(pCmdStr->ubCmdCount==workCountHelpTwo+1){
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+1 && workProxyThree==0){
 					pCmdStr->ubCmdCount+=1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
         }
         // Lifting
-        if(pCmdStr->ubCmdCount==workCountHelpTwo+2){
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+2 && workProxyThree==0){
 					pCmdStr->ubCmdCount+=1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=9;
         }
         // Closing
-        if(pCmdStr->ubCmdCount==workCountHelpTwo+3){
+        if(pCmdStr->ubCmdCount==workCountHelpTwo+3 && workProxyThree==0){
 					pCmdStr->ubCmdCount+=1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=7;
         }
         // DONE!
-        if(pCmdStr->pCmds[pCmdStr->ubCmdCount]==7){
+        if(pCmdStr->pCmds[pCmdStr->ubCmdCount]==7 && workProxyThree==0){
 						pCmdStr->ubCmdCount+=1;
 						pCmdStr->pCmds[pCmdStr->ubCmdCount]=0;
 						done=1;
         }
-        }
+
 	}
 }
