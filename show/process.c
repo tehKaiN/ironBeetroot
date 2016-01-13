@@ -8,7 +8,7 @@ void processHallPacket(
 	switch(pPacket->sHead.ubType) {
 		case PACKET_R_SETTYPE:
 			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
-			g_sShow.ubReady |= READY_ID_HALL;
+			g_sShow.ubReadyHall |= READY_HALL_ID;
 			break;
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
@@ -22,7 +22,7 @@ void processLeaderPacket(
 	switch(pPacket->sHead.ubType) {
 		case PACKET_R_SETTYPE:
 			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
-			g_sShow.ubReady |= READY_ID_LEADER;
+			g_sShow.ubReadyLeader |= READY_LEADER_ID;
 			break;
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);

@@ -13,7 +13,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="D:/prg/libs/SDL/include/SDL2" />
 				</Compiler>
 				<Linker>
 					<Add directory="D:/prg/libs/SDL/lib" />
@@ -34,10 +33,20 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="D:/prg/libs/SDL/include/SDL2" />
+			<Add directory="D:/prg/libs/SDL_image/include/SDL2" />
+			<Add directory="D:/prg/libs/SDL_ttf/include/SDL2" />
 		</Compiler>
 		<Linker>
-			<Add option="-lmingw32 -lSDL2main -lSDL2" />
+			<Add option="-lmingw32" />
+			<Add option="-lSDL2main" />
+			<Add option="-lSDL2" />
+			<Add option="-lSDL2_image" />
+			<Add option="-lSDL2_ttf" />
 			<Add library="C:\Program Files (x86)\libuv\libuv.lib" />
+			<Add directory="D:/prg/libs/SDL/lib" />
+			<Add directory="D:/prg/libs/SDL_image/lib" />
+			<Add directory="D:/prg/libs/SDL_ttf/lib" />
 		</Linker>
 		<Unit filename="../common/arm.h" />
 		<Unit filename="../common/list.c">
@@ -69,10 +78,14 @@
 		</Unit>
 		<Unit filename="../common/packet.h" />
 		<Unit filename="../common/types.h" />
+		<Unit filename="arm.h" />
+		<Unit filename="customer.h" />
 		<Unit filename="gfx.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="gfx.h" />
+		<Unit filename="package.h" />
+		<Unit filename="platform.h" />
 		<Unit filename="process.c">
 			<Option compilerVar="CC" />
 		</Unit>

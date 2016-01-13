@@ -14,5 +14,9 @@ void gfxIdle(
 	IN uv_idle_t *pIdle
 );
 
+void gfxDrawConnState(void);
+
+void gfxDrawHall(void);
+
 #endif // GUARD_SHOW_GFX_H
 

@@ -78,7 +78,7 @@
 	"packet.h"
 	"log.h"
 
-1452676216 source:d:\prg\_git\ironbeetroot\show\process.c
+1452708295 source:d:\prg\_git\ironbeetroot\show\process.c
 	"process.h"
 	"../common/log.h"
 	"show.h"
@@ -88,13 +88,14 @@
 	"../common/net/net.h"
 	"../common/packet.h"
 
-1452694644 d:\prg\_git\ironbeetroot\show\show.h
+1452707441 d:\prg\_git\ironbeetroot\show\show.h
 	<uv.h>
 	<SDL.h>
+	<SDL_ttf.h>
 	"../common/types.h"
 	"../common/net/net.h"
 
-1452695452 source:d:\prg\_git\ironbeetroot\show\show.c
+1452708309 source:d:\prg\_git\ironbeetroot\show\show.c
 	"show.h"
 	"../common/log.h"
 	"../common/mem.h"
@@ -102,13 +103,14 @@
 	"process.h"
 	"gfx.h"
 
-1452696012 source:d:\prg\_git\ironbeetroot\show\gfx.c
+1452707466 source:d:\prg\_git\ironbeetroot\show\gfx.c
 	"gfx.h"
 	<SDL.h>
+	<SDL_ttf.h>
 	"show.h"
 	"../common/log.h"
 
-1452695119 d:\prg\_git\ironbeetroot\show\gfx.h
+1452708456 d:\prg\_git\ironbeetroot\show\gfx.h
 	<uv.h>
 	"../common/types.h"
 
@@ -426,6 +428,11 @@
 
 1394937197 d:\prg\libs\sdl\include\sdl2\sdl_version.h
 	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1451809144 d:\prg\libs\sdl_ttf\include\sdl2\sdl_ttf.h
+	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
 

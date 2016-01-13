@@ -32,7 +32,11 @@ int main(int argc, char* args[]) {
 
 void showCreate(void) {
 
-	g_sShow.ubReady = 0;
+	g_sShow.ubReadyHall = 0;
+	g_sShow.ubReadyLeader = 0;
+	g_sShow.ubCustomerCount = 0;
+	g_sShow.ubPlatformCount = 0;
+	g_sShow.ubPackageCount = 0;
 
 	// TODO: SDL init
 	// ...
