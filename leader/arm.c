@@ -9,7 +9,7 @@ void armUpdate(uv_timer_t *pTimer) {
 	tLeaderPackage *pPackage;
 	tLeaderPlatform *pDst;
 	tLeaderPlatform *pSrc;
-	tPacketArmCommands *pCmdStr;
+	tPacketArmCommands sCmdStr;
 
 	// Get idle arm
 	pArm = armGetIdle();
@@ -33,7 +33,9 @@ void armUpdate(uv_timer_t *pTimer) {
 		pDst = pPackage->pPlatformDst;
 
 	// Route way and reserve fields for arm
-	armRoute(pArm, pSrc, pDst, pCmdStr);
+	packetPrepare((tPacket *)&sCmdStr, PACKET_SETARMCOMMANDS,
+								sizeof(tPacketArmCommands));
+	armRoute(pArm, pSrc, pDst, &sCmdStr);
 
 	// TODO: Send instruction list to arm
 
