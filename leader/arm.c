@@ -74,13 +74,46 @@ tLeaderPlatform *armGetFreeHelper(tLeaderArm *pArm) {
 	return 0;
 }
 
+/*
+ * NOTE: consider code refactor:
+ * while(currentY != srcY)
+ * 	...;
+ * while(currentX != srcX)
+ * 	...;
+ * open cmd;
+ * lower cmd;
+ * close cmd;
+ * highen cmd;
+ * while(currentY != dstY)
+ * 	...
+ * while(currentX != dstX)
+ * 	...
+ * lower cmd;
+ * open cmd;
+ * highen cmd;
+ * close cmd;
+ *
+ * currently while(!done) makes this thing overcomplicated
+ */
+
+// NOTE: should shorten armRoute code a bit
+void armAddCmd(UBYTE *pCmds, UBYTE *pCmdCount, UBYTE ubCmd) {
+	pCmds[*pCmdCount] = ubCmd;
+	++*pCmdCount;
+}
+
 void armRoute(
 	tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
 	tPacketArmCommands *pCmdStr
 ) {
+	// TODO: prefix ub for UBYTEs
+	// TODO: use ARM_CMD_* defines from ../common/arm.h
+	// TODO: use armAddCmd(), should shorten code a bit
 	UBYTE done;
 	UBYTE workXGrab, workYGrab, workXDrop, workYDrop, workCountHelp, workProxy;
 	UBYTE workCountHelpTwo, workProxyTwo, workProxyThree;
+
+
 	workXGrab=pArm->ubFieldX;
 	workYGrab=pArm->ubFieldY;
 	workXDrop=pSrc->ubX;
@@ -129,6 +162,7 @@ void armRoute(
         }
         // Opening
 				if(pCmdStr->ubCmdCount==workCountHelp){
+					// NOTE: Shouldn't ubCmdCount be increased after setting cmd?
 					pCmdStr->ubCmdCount=+1;
 					pCmdStr->pCmds[pCmdStr->ubCmdCount]=6;
 				}
