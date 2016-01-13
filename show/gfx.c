@@ -23,9 +23,15 @@ void gfxCreate(void) {
 	g_sShow.pFont = TTF_OpenFont("arial.ttf", 12);
 	if(!g_sShow.pFont)
 		logError("Can't load font: %s", TTF_GetError());
+
+	uv_idle_init(g_sNetManager.pLoop, &g_sShow.sSDLIdle);
+	uv_idle_start(&g_sShow.sSDLIdle, gfxIdle);
 }
 
 void gfxDestroy(void) {
+	// Stop event loop
+	uv_idle_stop(&g_sShow.sSDLIdle);
+
 	// Close stuff
 	TTF_CloseFont(g_sShow.pFont);
 	SDL_DestroyWindow(g_sShow.pWindow);

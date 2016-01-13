@@ -63,6 +63,10 @@
 /// Uses also PACKET_GETARMPOS
 
 #define PACKET_GETCUSTOMERLIST   15
+#define PACKET_GETARMPOSPREC     16
+
+#define PACKET_R_GETCUSTOMERLIST (PACKET_RESPONSE | PACKET_GETCUSTOMERLIST)
+#define PACKET_R_GETARMPOSPREC   (PACKET_RESPONSE | PACKET_GETARMPOSPREC)
 
 /// Defines for PACKET_R_GETPACKAGELIST
 
@@ -224,7 +228,12 @@ typedef struct _tPacketArmPos{
 	UBYTE ubFieldY;
 } tPacketArmPos;
 // TODO(#9): Leader should cyclically send PACKET_GETARMPOS to arm
-// TODO(#9): Show should cyclically send PACKET_GETARMPOS to ???
+
+typedef struct _tPacketArmPosPrec{
+	UWORD uwX;
+	UWORD uwY;
+} tPacketArmPosPrec;
+// TODO(#9): Show should cyclically send PACKET_GETARMPOS to hall
 
 /**
  * PACKET_ARMPROGRESS

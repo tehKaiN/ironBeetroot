@@ -38,15 +38,9 @@ void showCreate(void) {
 	g_sShow.ubPlatformCount = 0;
 	g_sShow.ubPackageCount = 0;
 
-	// TODO: SDL init
-	// ...
-
-	uv_idle_init(g_sNetManager.pLoop, &g_sShow.sSDLIdle);
-	uv_idle_start(&g_sShow.sSDLIdle, gfxIdle);
 }
 
 void showDestroy(void) {
-	uv_idle_stop(&g_sShow.sSDLIdle);
 }
 
 void showOnConnect(tNetClient *pClient) {
