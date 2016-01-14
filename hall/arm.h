@@ -5,14 +5,11 @@
 
 #include "package.h"
 
-#define ARM_UNK 0
-#define ARM_A 1
-#define ARM_B 2
-
 typedef struct _tHallArm{
+	tNetConn *pConn;
 	UBYTE ubRangeBegin;  /// Highest accessible row
 	UBYTE ubRangeEnd;    /// Lowest accessible row
-	UBYTE ubId;          /// ARM_UNK || ARM_A || ARM_B
+	UBYTE ubId;          /// See ARM_ID_* flags
 	UBYTE ubSpeed;       /// Real speed = 1 << ubSpeed
 	UWORD uwX;           /// Current pos X: one field has 256 units
 	UWORD uwY;           /// Current pos Y

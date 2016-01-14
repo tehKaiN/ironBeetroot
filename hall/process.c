@@ -2,6 +2,7 @@
 
 #include "../common/mem.h"
 #include "../common/log.h"
+#include "../common/arm.h"
 #include "../common/packet.h"
 #include "../common/net/server.h"
 
@@ -38,9 +39,7 @@ void processProtocol(
       processPackageList(pClientConn);
 			break;
 		default:
-			logWarning("Unknown packet type: %hu",
-				pPacket->sHead.ubType
-			);
+			logWarning("Unknown packet type: %hu", pPacket->sHead.ubType);
       logBinary(pPacket, pPacket->sHead.ubPacketLength);
 	}
 
@@ -98,6 +97,32 @@ void processSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
 			) {
 				logWarning("No more platforms for client %p", pClientConn);
 				sResponse.ubIsOk = 0;
+			}
+		}
+		else if(ubNewClientType == CLIENT_TYPE_ARM) {
+			logWrite("Additional arm ID: %hu", pPacket->ubExtra);
+			if(pPacket->ubExtra == ARM_ID_A) {
+				if(g_sHall.sArmA.pConn) {
+					logError("Arm A already logged in");
+					// TODO(#3): close client
+					return;
+				}
+				g_sHall.sArmA.pConn = pClientConn;
+				logSuccess("Logged as Arm A");
+			}
+			else if(pPacket->ubExtra == ARM_ID_B) {
+				if(g_sHall.sArmB.pConn) {
+					logError("Arm B already logged in");
+					// TODO(#3): close client
+					return;
+				}
+				g_sHall.sArmB.pConn = pClientConn;
+				logSuccess("Logged as Arm B");
+			}
+			else {
+				logError("Unknown arm id: %hu", pPacket->ubExtra);
+				// TODO(#3): close client
+				return;
 			}
 		}
 	}
