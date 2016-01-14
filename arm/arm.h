@@ -13,6 +13,7 @@ typedef struct _tArm{
 	tNetClient *pClientLeader; /// Connection to Leader
 	UBYTE ubReady;             /// See READY_* flags
 	uv_timer_t sSensorTimer;   /// Sensor update timer
+	UBYTE ubId;                /// See ARM_ID_* flags
 														  // Sensor info
 	UWORD uwCurrX;             /// Current coords
 	UWORD uwCurrY;             /// ------||------

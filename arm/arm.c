@@ -1,17 +1,27 @@
+#include "arm.h"
+#include <string.h>
 #include "../common/mem.h"
 #include "../common/log.h"
 #include "../common/net/net.h"
 #include "../common/net/client.h"
 #include "../common/packet.h"
 // TODO(#2): config
-#include "arm.h"
 #include "process.h"
 
-int main(void){
+int main(LONG lArcCount, char *szArgs[]){
 	logCreate("arm.log");
-	memCreate("arm_mem.loog");
+	memCreate("arm_mem.log");
 	netCreate();
 	armCreate();
+	if(strcmp(szArgs[0], "A"))
+		g_sArm.ubId = ARM_ID_A;
+	else if(strcmp(szArgs[0], "B"))
+		g_sArm.ubId = ARM_ID_B;
+	else {
+		g_sArm.ubId = ARM_ID_ILLEGAL;
+		logWrite("Unknown arm type: %s", szArgs[0]);
+		return 1;
+	}
 
 	g_sArm.pClientHall = netClientCreate("127.0.0.1", 888, armOnConnect, processHallPacket);
 	g_sArm.pClientLeader = netClientCreate("127.0.0.1", 0x888, armOnConnect, processLeaderPacket);
@@ -52,6 +62,7 @@ void armOnConnect(tNetClient *pClient) {
 
 	g_sArm.ubReady = 0;
 	packetMakeSetType(&sPacket, CLIENT_TYPE_ARM);
+	sPacket->ubExtra = g_sArm.ubId;
 	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netNopOnWrite);
 }
 

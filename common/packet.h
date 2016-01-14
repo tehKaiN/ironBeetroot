@@ -111,6 +111,7 @@ typedef struct _tPacket{
 typedef struct _tPacketSetType{
 	tPacketHead sHead;
 	UBYTE ubClientType;
+	UBYTE ubExtra;      /// Arm: ARM_ID_* macros
 } tPacketSetType;
 
 /**
