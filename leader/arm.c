@@ -3,6 +3,8 @@
 #include "leader.h"
 #include "package.h"
 #include "platform.h"
+#include "..\common\log.h"
+#include "..\common\arm.h"
 
 void armUpdate(uv_timer_t *pTimer) {
 	tLeaderArm *pArm;
@@ -10,6 +12,7 @@ void armUpdate(uv_timer_t *pTimer) {
 	tLeaderPlatform *pDst;
 	tLeaderPlatform *pSrc;
 	tPacketArmCommands sCmdStr;
+	tLeaderPlatform sPltfReserve;
 
 	// Get idle arm
 	pArm = armGetIdle();
@@ -36,6 +39,9 @@ void armUpdate(uv_timer_t *pTimer) {
 	packetPrepare((tPacket *)&sCmdStr, PACKET_SETARMCOMMANDS,
 								sizeof(tPacketArmCommands));
 	armRoute(pArm, pSrc, pDst, &sCmdStr);
+	packetPrepare((tPacket *)&sPltfReserve, PACKET_UPDATEPLATFORMS,
+								sizeof(tLeaderPlatform));
+
 
 	// TODO: Send instruction list to arm
 
@@ -108,10 +114,6 @@ void armRoute(
 	tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
 	tPacketArmCommands *pCmdStr
 ) {
-	// NOTE: All todos resolved.
-	// TODO: prefix ub for UBYTEs
-	// TODO: use ARM_CMD_* defines from ../common/arm.h
-	// TODO: use armAddCmd(), should shorten code a bit
 	UBYTE ubDone;
 	UBYTE ubWorkXGrab, ubWorkYGrab, ubWorkXDrop, ubWorkYDrop, ubWorkCountHelp;
 	UBYTE ubWorkCountHelpTwo, ubWorkProxyTwo, ubWorkProxyThree, ubWorkProxy;
@@ -161,30 +163,19 @@ void armRoute(
         }
         // Opening
 				if(pCmdStr->ubCmdCount==ubWorkCountHelp){
-					// NOTE: Shouldn't ubCmdCount be increased after setting cmd?
-					// NOTE: Answer: In this single case it cannot be increased after
-					// setting cmd, because it would override previous cmd, thus
-					// leaving us probably one field away from where we should be
-					pCmdStr->ubCmdCount=+1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_OPEN;
+					armAddCmd(pCmdStr->pCmds, &pCmdStr->ubCmdCount, ARM_CMD_OPEN);
 				}
 				// Lowering
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+1){
-					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_LOWER;
+					armAddCmd(pCmdStr->pCmds, &pCmdStr->ubCmdCount, ARM_CMD_LOWER);
         }
         // Closing
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+2){
-					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_CLOSE;
+					armAddCmd(pCmdStr->pCmds, &pCmdStr->ubCmdCount, ARM_CMD_CLOSE);
         }
         // Lifting
         if(pCmdStr->ubCmdCount==ubWorkCountHelp+3){
-					pCmdStr->ubCmdCount+=1;
-					pCmdStr->pCmds[pCmdStr->ubCmdCount]=ARM_CMD_HIGHEN;
-					pCmdStr->ubCmdCount+=1; // NOTE: Without this increase it would do
-					// what was the purpose of this manevouer in the beginning, thus
-					// this addition
+					armAddCmd(pCmdStr->pCmds, &pCmdStr->ubCmdCount, ARM_CMD_HIGHEN);
         }
         // Did we lift the package?
         if(pCmdStr->ubCmdCount>=ubWorkCountHelp+4 && ubWorkProxyThree==0)
@@ -255,3 +246,37 @@ void armRoute(
 
 	}
 }
+
+void armReservePlatform(
+		tLeaderPlatform *pSrc, tLeaderPlatform *pDst, tLeaderPlatform *pPltfReserve,
+		tLeaderArm *pArm
+		){
+			UBYTE ubHelp;
+			ubHelp=0;    /// Troubleshooting var, prevents mistakenly reporting errors
+			if(pSrc->ubX == pPltfReserve->ubX && pSrc->ubY == pPltfReserve->ubY
+						&& pPltfReserve->pArmIn->ubId == ARM_ID_ILLEGAL
+						){
+				pPltfReserve->pArmIn->ubId=pArm->ubId;
+				ubHelp=1;
+			}
+			else if(pDst->ubX == pPltfReserve->ubX && pDst->ubY == pPltfReserve->ubY
+								&& pPltfReserve->pArmOut->ubId == ARM_ID_ILLEGAL
+								){
+				pPltfReserve->pArmOut->ubId=pArm->ubId;
+				ubHelp=1;
+			}
+			else if((pPltfReserve->pArmIn->ubId!=ARM_ID_ILLEGAL ||
+								pPltfReserve->pArmOut->ubId!=ARM_ID_ILLEGAL) && ubHelp == 0
+								){
+				logWrite("Not free.");
+				// TODO: Function for freeing platform
+				return;
+			}
+			else if((pSrc->ubX != pPltfReserve->ubX || pSrc->ubY != pPltfReserve->ubY
+						||	pDst->ubX != pPltfReserve->ubX || pDst->ubY != pPltfReserve->ubY
+								) && ubHelp == 0
+								){
+				logWrite("Wrong coordinants.");
+					return;
+			}
+		}

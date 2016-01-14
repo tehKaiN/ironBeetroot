@@ -46,4 +46,9 @@
 /// Following command makes arm idle (awaiting new command set)
 #define ARM_CMD_END     0
 
+/// Arm IDs
+#define ARM_ID_A 1
+#define ARM_ID_B 2
+#define ARM_ID_ILLEGAL 0
+
 #endif // GUARD_COMMON_ARM_H
