@@ -240,6 +240,17 @@ void processPlatformListResponse(tPacketPlatformList *pPacket) {
 		memset(g_sLeader.pFields[ubX], 0, pPacket->ubHallHeight);
   }
 
+  // Fill arm range data
+  g_sLeader.sArmA.ubRangeY1 = pPacket->ubArmRangeBeginA;
+  g_sLeader.sArmA.ubRangeX1 = 0;
+  g_sLeader.sArmA.ubRangeY2 = pPacket->ubArmRangeEndA;
+  g_sLeader.sArmA.ubRangeX2 = pPacket->ubHallHeight-1;
+
+  g_sLeader.sArmB.ubRangeY1 = pPacket->ubArmRangeBeginB;
+  g_sLeader.sArmB.ubRangeX1 = 0;
+  g_sLeader.sArmB.ubRangeY2 = pPacket->ubArmRangeEndB;
+  g_sLeader.sArmB.ubRangeX2 = pPacket->ubHallHeight-1;
+
 	platformAlloc(pPacket->ubPlatformCount);
 
   for(i = 0; i != g_sLeader.ubPlatformCount; ++i) {

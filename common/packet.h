@@ -162,6 +162,10 @@ typedef struct _tPacketPlatformList{
 	UBYTE ubPlatformCount;
 	UBYTE ubHallWidth;
 	UBYTE ubHallHeight;
+	UBYTE ubArmRangeBeginA;
+	UBYTE ubArmRangeEndA;
+	UBYTE ubArmRangeBeginB;
+	UBYTE ubArmRangeEndB;
 	struct {
 		UBYTE ubId;
     UBYTE ubX;

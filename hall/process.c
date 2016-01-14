@@ -271,6 +271,10 @@ void processPlatformList(tNetConn *pClientConn) {
 		sResponse.pPlatforms[i].ubType = g_sHall.pPlatforms[i].ubType;
 	}
 	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+	sResponse.ubArmRangeBeginA = g_sHall.sArmA.ubRangeBegin;
+	sResponse.ubArmRangeEndA = g_sHall.sArmA.ubRangeEnd;
+	sResponse.ubArmRangeBeginB = g_sHall.sArmB.ubRangeBegin;
+	sResponse.ubArmRangeEndB = g_sHall.sArmB.ubRangeEnd;
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
