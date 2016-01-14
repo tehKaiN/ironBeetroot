@@ -14,17 +14,19 @@ tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 		pPackage = &g_sLeader.pPackages[i];
 
 		// Is package already carried?
-		if(pPackage->pArm)
+		if(pPackage->pArm) {
 			continue;
+		}
 
 		// Take into account packages on IN and HELPER platforms
 		pSrc = pPackage->pPlatformCurr;
-		if(pSrc->ubType == PLATFORM_OUT);
+		if(pSrc->ubType == PLATFORM_OUT)
 			continue;
 
 		// Check if source is within arm's reach
-		if(!armCheckWithinRange(pArm, pSrc))
+		if(!armCheckWithinRange(pArm, pSrc)) {
 			continue;
+		}
 
 		// Check if destination is within arm's reach
 		pDst = pPackage->pPlatformDst;
@@ -36,8 +38,9 @@ tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 		else {
 			// Are there free helper platforms?
 			pHlp = armGetFreeHelper(pArm);
-			if(!pHlp)
+			if(!pHlp) {
 				continue;
+			}
 			pPackage->pPlatformHlp = pHlp;
 			return pPackage;
 		}

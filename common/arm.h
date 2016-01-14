@@ -5,17 +5,16 @@
  * Arm state bits
  */
 #define ARM_STATE_ERR         0
-#define ARM_STATE_IDLE        1
-#define ARM_STATE_MOVING      2
-#define ARM_STATE_UP          4
-#define ARM_STATE_DOWN        8
-#define ARM_STATE_MOVEV       16
+#define ARM_STATE_MOVING      1
+#define ARM_STATE_UP          2
+#define ARM_STATE_DOWN        4
+#define ARM_STATE_MOVEV       8
 #define ARM_STATE_MOVEUP      (ARM_STATE_MOVEV|ARM_STATE_UP)
 #define ARM_STATE_MOVEDOWN    (ARM_STATE_MOVEV|ARM_STATE_DOWN)
 #define ARM_STATE_MOVEV_MASK  (4|8|16)
-#define ARM_STATE_CLOSED      32
-#define ARM_STATE_OPEN        64
-#define ARM_STATE_GRABMOVE    128
+#define ARM_STATE_CLOSED      16
+#define ARM_STATE_OPEN        32
+#define ARM_STATE_GRABMOVE    64
 #define ARM_STATE_CLOSING     (ARM_STATE_GRABMOVE|ARM_STATE_CLOSED)
 #define ARM_STATE_OPENING     (ARM_STATE_GRABMOVE|ARM_STATE_OPEN)
 #define ARM_STATE_GRAB_MASK   (32|64|128)

@@ -37,6 +37,8 @@ UBYTE cmdIsDone(void) {
 			if(g_sArm.uwDestY == g_sArm.uwDestY)
 				return 1;
 			return 0;
+		case ARM_CMD_END:
+			return 1;
 		default:
 			logError("Unknown command code: %hu", ubCmd);
   }
@@ -85,7 +87,7 @@ UBYTE cmdGoNext(void) {
 	++g_sArm.ubCmdCurr;
 	ubCmd = g_sArm.pCmds[g_sArm.ubCmdCurr];
 	if(g_sArm.ubCmdCurr >= g_sArm.ubCmdCount || ubCmd == ARM_CMD_END) {
-		g_sArm.ubCmdState = ARM_CMDSTATE_IDLE;
+		g_sArm.ubCmdState |= ARM_CMDSTATE_IDLE;
 		uv_mutex_unlock(&g_sArm.sCmdMutex);
 		return 0;
 	}

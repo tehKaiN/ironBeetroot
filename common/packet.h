@@ -52,7 +52,7 @@
 #define PACKET_GETSENSORINFO     11
 #define PACKET_SETACTUATORS      12
 #define PACKET_ARMPROGRESS       13
-#define PACKET_ARMIDLE           14
+#define PACKET_ARMSTATE          14
 
 #define PACKET_R_GETSENSORINFO   (PACKET_RESPONSE | PACKET_GETSENSORINFO)
 
@@ -238,6 +238,8 @@ typedef struct _tPacketArmPos{
 	tPacketHead sHead;
 	UBYTE ubFieldX;
 	UBYTE ubFieldY;
+	UBYTE ubState;
+	UBYTE ubCmdState;
 } tPacketArmPos;
 // TODO(#9): Leader should cyclically send PACKET_GETARMPOS to arm
 
@@ -246,7 +248,7 @@ typedef struct _tPacketArmPosPrec{
 	UWORD uwX;
 	UWORD uwY;
 } tPacketArmPosPrec;
-// TODO(#9): Show should cyclically send PACKET_GETARMPOS to hall
+// TODO(#9): Show should cyclically send PACKET_GETARMPOSPREC to hall
 
 /**
  * PACKET_ARMPROGRESS

@@ -25,10 +25,6 @@ void processArmProgress(
 	IN tPacketArmProgress *pPacket
 );
 
-void processArmIdle(
-	IN tNetConn *pClientConn
-);
-
 void processClientOnConnect(
 	IN tNetClient *pClient
 );

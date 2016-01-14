@@ -24,6 +24,8 @@ void processSensorInfoResponse(
 	IN tPacketSensorInfo *pPacket
 );
 
+void processArmPos(void);
+
 void processSetCommands(
 	IN tPacketArmCommands *pPacket
 );

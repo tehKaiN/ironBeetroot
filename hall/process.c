@@ -40,6 +40,10 @@ void processProtocol(
 			break;
 		case PACKET_SETACTUATORS:
 			processActuators(pClientConn, (tPacketActuators*)pPacket);
+			break;
+		case PACKET_GETSENSORINFO:
+			processSensors(pClientConn);
+			break;
 		default:
 			logWarning("Unknown packet type: %hu", pPacket->sHead.ubType);
       logBinary(pPacket, pPacket->sHead.ubPacketLength);
@@ -299,7 +303,6 @@ void processPackageList(tNetConn *pClientConn) {
       sResponse.pPackages[ubPackageCount].ubPlatformCurrId = g_sHall.pPlatforms[i].ubId;
       sResponse.pPackages[ubPackageCount].ubPlatformDestId = g_sHall.pPlatforms[i].pPackage->pDest->ubId;
       sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_PLATFORM;
-
       ++ubPackageCount;
 		}
 	}
@@ -308,15 +311,18 @@ void processPackageList(tNetConn *pClientConn) {
 	// Add packages grabbed by arms
 	if(g_sHall.sArmA.pPackage) {
 		sResponse.pPackages[ubPackageCount].ubId = g_sHall.sArmA.pPackage->ulIdx;
+		sResponse.pPackages[ubPackageCount].ubPlatformDestId = g_sHall.pPlatforms[i].pPackage->pDest->ubId;
 		sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_ARMA;
 		++ubPackageCount;
 	}
 
 	if(g_sHall.sArmB.pPackage) {
 		sResponse.pPackages[ubPackageCount].ubId = g_sHall.sArmB.pPackage->ulIdx;
+		sResponse.pPackages[ubPackageCount].ubPlatformDestId = g_sHall.pPlatforms[i].pPackage->pDest->ubId;
 		sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_ARMB;
 		++ubPackageCount;
 	}
+	sResponse.ubPackageCount = ubPackageCount;
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
@@ -380,6 +386,31 @@ void processActuators(tNetConn *pClientConn, tPacketActuators* pPacket) {
 	}
 
 	uv_mutex_unlock(&pArm->sMutex);
+}
+
+void processSensors(tNetConn *pClientConn) {
+	tPacketSensorInfo sResponse;
+	tHallArm *pArm;
+
+	// Determine arm
+  if(g_sHall.sArmA.pConn == pClientConn)
+		pArm = &g_sHall.sArmA;
+	else if(g_sHall.sArmB.pConn == pClientConn)
+		pArm = &g_sHall.sArmB;
+	else {
+		logError("Unknown arm client: 0x%p", pClientConn);
+		return;
+	}
+
+	// Respond
+	packetPrepare(
+		(tPacket*)&sResponse, PACKET_R_GETSENSORINFO, sizeof(tPacketSensorInfo)
+	);
+
+	sResponse.ubState = pArm->ubState;
+	sResponse.uwX = pArm->uwX;
+	sResponse.uwY = pArm->uwY;
+	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
 
 UBYTE _hallCheckClient(

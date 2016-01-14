@@ -41,6 +41,10 @@ void processActuators(
 	IN tPacketActuators* pPacket
 );
 
+void processSensors(
+	IN tNetConn *pClientConn
+);
+
 UBYTE _hallCheckClient(
 	IN tNetConn *pClientConn,
 	IN UBYTE ubType,

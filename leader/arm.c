@@ -8,6 +8,8 @@
 
 void armInit(tLeaderArm *pArm, UBYTE ubId) {
 	uv_mutex_init(&pArm->sMutex);
+	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
+	pArm->sTimer.data = (void *)pArm;
 	memset(pArm->pCmds, 0, MAX_COMMANDS);
 	pArm->ubCmdCount = 0;
 	pArm->pConn = 0;
@@ -18,7 +20,9 @@ void armInit(tLeaderArm *pArm, UBYTE ubId) {
 	pArm->ubRangeX2 = 0;
 	pArm->ubRangeY1 = 0;
 	pArm->ubRangeY2 = 0;
-	pArm->ubState = ARM_STATE_IDLE;
+	pArm->ubState = 0;
+	pArm->ubCmdState = ARM_CMDSTATE_IDLE;
+	pArm->ubHasNewCmds = 0;
 }
 
 tLeaderArm *armGetByConn(tNetConn *pConn) {
@@ -32,25 +36,49 @@ tLeaderArm *armGetByConn(tNetConn *pConn) {
 	return 0;
 }
 
+void armPosUpdate(uv_timer_t *pTimer) {
+  tPacketHead sReq;
+
+	if(!g_sLeader.sArmA.pConn && !g_sLeader.sArmB.pConn)
+		return;
+
+  packetPrepare((tPacket*)&sReq, PACKET_GETARMPOS, sizeof(tPacketHead));
+
+	if(g_sLeader.sArmA.pConn)
+		netSend(g_sLeader.sArmA.pConn, (tPacket *)&sReq, netNopOnWrite);
+	if(g_sLeader.sArmB.pConn)
+		netSend(g_sLeader.sArmB.pConn, (tPacket *)&sReq, netNopOnWrite);
+}
+
 void armUpdate(uv_timer_t *pTimer) {
+	static UBYTE ubLastState = 0;
 	tLeaderArm *pArm;
 	tLeaderPackage *pPackage;
 	tLeaderPlatform *pDst;
 	tLeaderPlatform *pSrc;
-	tPacketArmCommands sCmdStr;
-	tLeaderPlatform sPltfReserve;
 
 	// Get idle arm
 	pArm = armGetIdle();
-	if(!pArm)
+	if(!pArm) {
+		if(ubLastState != 1) {
+			logWrite("No idle arms");
+			ubLastState = 1;
+		}
 		return;
+	}
 
 	// Get package in need of pickup
 	pPackage = packageGetNext(pArm);
-	if(!pPackage)
+	if(!pPackage) {
+		if(ubLastState != 2) {
+			logWrite("No package in need to pickup");
+			ubLastState = 2;
+		}
 		return;
+	}
 
 	// Determine destination
+	logWrite("Got package");
 	pSrc = pPackage->pPlatformCurr;
 	if(pPackage->pPlatformHlp) {
 		if(pPackage->pPlatformHlp == pSrc)
@@ -61,29 +89,86 @@ void armUpdate(uv_timer_t *pTimer) {
 	else
 		pDst = pPackage->pPlatformDst;
 
-	// Route way and reserve fields for arm
-	packetPrepare((tPacket *)&sCmdStr, PACKET_SETARMCOMMANDS,
-								sizeof(tPacketArmCommands));
+	// Route way
+	uv_mutex_lock(&pArm->sMutex);
 	armRoute(pArm, pSrc, pDst);
-	packetPrepare((tPacket *)&sPltfReserve, PACKET_UPDATEPLATFORMS,
-								sizeof(tLeaderPlatform));
+	pArm->ubHasNewCmds = 1;
+	uv_mutex_unlock(&pArm->sMutex);
 
+	// Set reserve timer
 
-	// TODO: Send instruction list to arm
+	if(pArm->ubId == ARM_ID_A)
+		logWrite("Made new route for arm A with %hu commands", pArm->ubCmdCount);
+	else
+		logWrite("Made new route for arm B with %hu commands", pArm->ubCmdCount);
+	ubLastState = 0;
+	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
+	pArm->sTimer.data = (void *)pArm;
+	uv_timer_start(&pArm->sTimer, armSetRoute, 100, 500);
+}
 
+void armSetRoute(uv_timer_t *pTimer) {
+	tPacketArmCommands sPacket;
+	tLeaderArm *pArm;
 
+	pArm = (tLeaderArm *)pTimer->data;
+	uv_mutex_lock(&g_sLeader.sRouteMutex);
+	uv_mutex_lock(&pArm->sMutex);
+
+	// Is route clear?
+	if(!armRouteCheck(pArm))
+		return;
+
+	// Reserve route
+	armRouteReserve(pArm);
+
+	// Send instruction list to arm
+	uv_timer_stop(&pArm->sTimer);
+	packetPrepare(
+		(tPacket *)&sPacket, PACKET_SETARMCOMMANDS, sizeof(tPacketArmCommands)
+	);
+	memcpy(sPacket.pCmds, pArm->pCmds, MAX_COMMANDS);
+	sPacket.ubCmdCount = pArm->ubCmdCount;
+	pArm->ubHasNewCmds = 0;
+
+	uv_mutex_unlock(&pArm->sMutex);
+	uv_mutex_unlock(&g_sLeader.sRouteMutex);
+	netSend(pArm->pConn, (tPacket *)&sPacket, netNopOnWrite);
+	pArm->ubCmdState = ARM_CMDSTATE_NEW;
+
+	if(pArm->ubId == ARM_ID_A)
+		logSuccess("Sent new route to arm A");
+	else
+		logSuccess("Sent new route to arm B");
 }
 
 tLeaderArm *armGetIdle(void) {
-
-	// Is arm A idle?
-  if(!(g_sLeader.sArmA.ubState & ARM_STATE_IDLE))
-		return &g_sLeader.sArmA;
-
-	// Is arm B idle?
-  if(!(g_sLeader.sArmB.ubState & ARM_STATE_IDLE))
-		return &g_sLeader.sArmB;
-
+	if(rand() > RAND_MAX>>1) {
+		// A, then B
+		if(
+			g_sLeader.sArmA.ubCmdState == ARM_CMDSTATE_IDLE &&
+			!g_sLeader.sArmA.ubHasNewCmds
+		)
+			return &g_sLeader.sArmA;
+		if(
+			g_sLeader.sArmB.ubCmdState == ARM_CMDSTATE_IDLE &&
+			!g_sLeader.sArmB.ubHasNewCmds
+		)
+			return &g_sLeader.sArmB;
+	}
+	else {
+		// B, then A
+		if(
+			g_sLeader.sArmB.ubCmdState == ARM_CMDSTATE_IDLE &&
+			!g_sLeader.sArmB.ubHasNewCmds
+		)
+			return &g_sLeader.sArmB;
+		if(
+			g_sLeader.sArmA.ubCmdState == ARM_CMDSTATE_IDLE &&
+			!g_sLeader.sArmA.ubHasNewCmds
+		)
+			return &g_sLeader.sArmA;
+	}
 	return 0;
 }
 
@@ -108,172 +193,87 @@ tLeaderPlatform *armGetFreeHelper(tLeaderArm *pArm) {
 	return 0;
 }
 
-/*
- * NOTE: consider code refactor:
- * while(currentY != srcY)
- * 	...;
- * while(currentX != srcX)
- * 	...;
- * open cmd;
- * lower cmd;
- * close cmd;
- * highen cmd;
- * while(currentY != dstY)
- * 	...
- * while(currentX != dstX)
- * 	...
- * lower cmd;
- * open cmd;
- * highen cmd;
- * close cmd;
- *
- * currently while(!done) makes this thing overcomplicated
- */
-
 void armAddCmd(UBYTE *pCmds, UBYTE *pCmdCount, UBYTE ubCmd) {
 	pCmds[*pCmdCount] = ubCmd;
 	++*pCmdCount;
 }
 
-void armRoute(
-	tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst
-) {
-	UBYTE ubDone;
-	UBYTE ubWorkXGrab, ubWorkYGrab, ubWorkXDrop, ubWorkYDrop, ubWorkCountHelp;
-	UBYTE ubWorkCountHelpTwo, ubWorkProxyTwo, ubWorkProxyThree, ubWorkProxy;
+void armRoute(tLeaderArm *pArm, tLeaderPlatform *pSrc, tLeaderPlatform *pDst) {
+	UBYTE ubX, ubY;
 
+	ubX=pArm->ubFieldX;
+	ubY=pArm->ubFieldY;
 
-	ubWorkXGrab=pArm->ubFieldX;
-	ubWorkYGrab=pArm->ubFieldY;
-	ubWorkXDrop=pSrc->ubX;
-	ubWorkYDrop=pSrc->ubY;
-	ubWorkProxy=0;
-	ubWorkProxyTwo=0;
-	ubWorkProxyThree=0;
-	ubDone=0;
 	pArm->ubCmdCount=0;
-	while(ubDone==0) {
-		// Is arm in correct line in axis X for the starting platform?
-		if(ubWorkXGrab!=pSrc->ubX){
-				// Change the X-axis position of the arm
-            if(ubWorkXGrab>pSrc->ubX){
-								armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_W);
-                ubWorkXGrab-=1;
-            }
-            else{
-                armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_E);
-                ubWorkXGrab+=1;
-            }
-        }
-		// Is arm in correct position in axis Y for the starting platform?
-        if(ubWorkYGrab!=pSrc->ubY && ubWorkXGrab==pSrc->ubX){
-						// Change the Y-axis position of the arm
-            if(ubWorkYGrab>pSrc->ubY){
-                armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_N);
-                ubWorkYGrab+=1;
-            }
-            else{
-                armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_S);
-                ubWorkYGrab+=1;
-            }
-        }
-        // Preparing for lifting the package
-        if(ubWorkXGrab==pSrc->ubX && ubWorkYGrab==pSrc->ubY && ubWorkProxy==0){
-						// Proxy set to avoid entering this code more than once
-						// This is a safe way to conduct lowering, opening
-						// Closing and lifting without weird manipulations on the structs
-            ubWorkCountHelp=pArm->ubCmdCount;
-            ubWorkProxy+=1;
-        }
-        // Opening
-				if(pArm->ubCmdCount==ubWorkCountHelp){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_OPEN);
-				}
-				// Lowering
-        if(pArm->ubCmdCount==ubWorkCountHelp+1){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_LOWER);
-        }
-        // Closing
-        if(pArm->ubCmdCount==ubWorkCountHelp+2){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_CLOSE);
-        }
-        // Lifting
-        if(pArm->ubCmdCount==ubWorkCountHelp+3){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_HIGHEN);
-        }
-        // Did we lift the package?
-        if(pArm->ubCmdCount>=ubWorkCountHelp+4 && ubWorkProxyThree==0)
-        {
-           ubWorkProxyThree+=1;
-        }
-        // Is the current line in X-axis the same as for the final platform?
-        if(ubWorkXDrop!=pDst->ubX && ubWorkProxyThree==1){
-						// Change the X-axis position of the arm
-					if(ubWorkXDrop>pDst->ubX){
-						armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_W);
-						ubWorkXDrop-=1;
-					}
-					else{
-						armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_E);
-						ubWorkXDrop+=1;
-					}
-        }
-        // Are we in a good line in Y-axis for the final platform?
-        if(ubWorkYDrop!=pDst->ubY && ubWorkXDrop==pDst->ubX
-					&& ubWorkProxyThree==1){
-						// Change the Y-axis position of the arm
-					if(ubWorkYDrop>pDst->ubY){
-						armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_N);
-						ubWorkYDrop-=1;
-					}
-					else{
-						armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_S);
-						ubWorkYDrop+=1;
-					}
-        }
-        // Preparing for leaving the package
-        if(ubWorkXDrop==pDst->ubX && ubWorkYDrop==pDst->ubY && ubWorkProxyTwo==0
-					&& ubWorkProxyThree==1){
-						// Proxy set to avoid entering this code more than once
-						// This is a safe way to conduct lowering, opening
-						// Closing and lifting without weird manipulations on the structs
-					ubWorkCountHelpTwo=pArm->ubCmdCount;
-					ubWorkProxyTwo+=1;
-        }
-        // Lowering
-				if(pArm->ubCmdCount==ubWorkCountHelpTwo && ubWorkProxyThree==1){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_LOWER);
-				}
-				// Opening
-        if(pArm->ubCmdCount==ubWorkCountHelpTwo+1 && ubWorkProxyThree==1){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_OPEN);
-        }
-        // Lifting
-        if(pArm->ubCmdCount==ubWorkCountHelpTwo+2 && ubWorkProxyThree==1){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_HIGHEN);
-        }
-        // Closing
-        if(pArm->ubCmdCount==ubWorkCountHelpTwo+3 && ubWorkProxyThree==1){
-					armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_CLOSE);
-        }
-        // DONE!
-        if(pArm->pCmds[pArm->ubCmdCount]==ARM_CMD_CLOSE
-					&& ubWorkProxyThree==1){
-						armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_END);
-						ubDone=1;
-        }
 
+	// Move to source X
+	while(ubX != pSrc->ubX){
+		if(ubX > pSrc->ubX){
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_W);
+			ubX-=1;
+		}
+		else{
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_E);
+			ubX+=1;
+		}
 	}
+	// Move to source Y
+	while(ubY != pSrc->ubY){
+		if(ubY > pSrc->ubY){
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_N);
+			ubY-=1;
+		}
+		else{
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_S);
+			ubY+=1;
+		}
+	}
+	// Open-lower-close-highen
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_OPEN);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_LOWER);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_CLOSE);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_HIGHEN);
+
+	// Move to dest X
+	while(ubX != pDst->ubX){
+		if(ubX> pDst->ubX){
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_W);
+			ubX-=1;
+		}
+		else{
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_E);
+			ubX+=1;
+		}
+	}
+
+	// Move to dest Y
+	while(ubY != pDst->ubY){
+		if(ubY>pDst->ubY){
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_N);
+			ubY-=1;
+		}
+		else{
+			armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_MOVE_S);
+			ubY+=1;
+		}
+	}
+
+	// Lower-open-highen-close-end
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_LOWER);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_OPEN);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_HIGHEN);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_CLOSE);
+	armAddCmd(pArm->pCmds, &pArm->ubCmdCount, ARM_CMD_END);
 }
-UBYTE armRouteCheck(
-	tLeaderArm *pArm, UBYTE *pCmd, UBYTE ubCmdCount
-) {
-	UBYTE ubX=pArm->ubFieldX;
-	UBYTE ubY=pArm->ubFieldY;
-	UBYTE i;
-	for(i=0; i<ubCmdCount; i++) {
+
+UBYTE armRouteCheck(tLeaderArm *pArm) {
+	UBYTE ubX, ubY, i;
+
+	ubX = pArm->ubFieldX;
+	ubY = pArm->ubFieldY;
+	for(i=0; i<pArm->ubCmdCount; i++) {
 		// Update position
-		switch (pCmd[i]){
+		switch (pArm->pCmds[i]){
 			case ARM_CMD_MOVE_N:
 				ubY--;
 				break;
@@ -287,25 +287,21 @@ UBYTE armRouteCheck(
 				ubY--;
 				break;
 		}
-	// Check if field is reserved
-		if(
-			(pArm->ubId == ARM_ID_A && g_sLeader.pFields[ubX][ubY] == 0)
-		)
+		// Check if field is reserved
+		if(g_sLeader.pFields[ubX][ubY])
 			return 0;
 	}
 	return 1;
 }
 
-void armRouteReserve(
-		tLeaderArm *pArm, tLeader *pReserve, UBYTE *pCmd, UBYTE ubCmdCount
-) {
+void armRouteReserve(tLeaderArm *pArm) {
 	UBYTE ubX, ubY, i;
 
 	ubX = pArm->ubFieldX;
 	ubY = pArm->ubFieldY;
-	for(i=0; i<ubCmdCount; i++) {
+	for(i=0; i<pArm->ubCmdCount; i++) {
 		// Update position
-		switch (pCmd[i]){
+		switch (pArm->pCmds[i]){
 			case ARM_CMD_MOVE_N:
 				ubY--;
 				break;
@@ -319,12 +315,7 @@ void armRouteReserve(
 				ubY--;
 				break;
 		}
-		// TODO: Is condition needed here? Can be outside loop @ beginning
-		// TODO: Use logError, remove "Error" from string
-		// NOTE: Code done by Dutchered, only from my computer, let him repair
-		if(pArm->ubId == ARM_ID_A) pReserve->pFields[ubX][ubY]++;
-		else if(pArm->ubId == ARM_ID_B) pReserve->pFields[ubX][ubY]++;
-		else logWrite("Error, wrong ARM_ID");
+		g_sLeader.pFields[ubX][ubY]++;
 	}
 }
 

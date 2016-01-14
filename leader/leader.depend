@@ -53,7 +53,7 @@
 	"../list.h"
 	"../packet.h"
 
-1452719868 d:\prg\_git\ironbeetroot\common\packet.h
+1452796293 d:\prg\_git\ironbeetroot\common\packet.h
 	"types.h"
 
 1452717717 source:d:\prg\_git\ironbeetroot\common\net\net.c
@@ -78,17 +78,21 @@
 	"packet.h"
 	"log.h"
 
-1452758266 source:d:\prg\_git\ironbeetroot\leader\arm.c
+1452797316 source:d:\prg\_git\ironbeetroot\leader\arm.c
 	"arm.h"
 	<uv.h>
 	"leader.h"
 	"package.h"
 	"platform.h"
+	"..\common\log.h"
+	"..\common\arm.h"
 
-1452717717 d:\prg\_git\ironbeetroot\leader\arm.h
+1452796358 d:\prg\_git\ironbeetroot\leader\arm.h
+	<uv.h>
 	"../common/types.h"
 	"../common/packet.h"
-	<uv.h>
+	"../common/arm.h"
+	"../common/net/net.h"
 	"platform.h"
 
 1452717717 d:\prg\_git\ironbeetroot\leader\platform.h
@@ -98,7 +102,7 @@
 1452717717 d:\prg\_git\ironbeetroot\leader\package.h
 	"arm.h"
 
-1452717717 d:\prg\_git\ironbeetroot\leader\leader.h
+1452793677 d:\prg\_git\ironbeetroot\leader\leader.h
 	"../common/net/net.h"
 	"platform.h"
 	"arm.h"
@@ -115,7 +119,7 @@
 
 1452717717 d:\prg\_git\ironbeetroot\leader\hall.h
 
-1452759322 source:d:\prg\_git\ironbeetroot\leader\leader.c
+1452794604 source:d:\prg\_git\ironbeetroot\leader\leader.c
 	"leader.h"
 	"../common/log.h"
 	"../common/mem.h"
@@ -126,11 +130,11 @@
 	"config.h"
 	"arm.h"
 
-1452717717 d:\prg\_git\ironbeetroot\leader\process.h
+1452793319 d:\prg\_git\ironbeetroot\leader\process.h
 	"../common/types.h"
 	"../common/net/net.h"
 
-1452759281 source:d:\prg\_git\ironbeetroot\leader\package.c
+1452797211 source:d:\prg\_git\ironbeetroot\leader\package.c
 	"package.h"
 	<uv.h>
 	"leader.h"
@@ -307,4 +311,6 @@
 	"../common/packet.h"
 	"../common/net/server.h"
 	"leader.h"
+
+1452796219 d:\prg\_git\ironbeetroot\common\arm.h
 

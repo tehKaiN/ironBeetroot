@@ -42,6 +42,8 @@ int main(LONG lArgCount, char *szArgs[]){
 
 void armCreate(void) {
 	g_sArm.ubReady = 0;
+	g_sArm.ubState = ARM_STATE_OPEN | ARM_STATE_UP;
+	g_sArm.ubCmdState = ARM_CMDSTATE_IDLE;
 
 	uv_mutex_init(&g_sArm.sSensorMutex);
 	uv_mutex_init(&g_sArm.sCmdMutex);
@@ -69,7 +71,7 @@ void armOnConnect(tNetClient *pClient) {
 	g_sArm.ubReady = 0;
 	packetMakeSetType(&sPacket, CLIENT_TYPE_ARM);
 	sPacket.ubExtra = g_sArm.ubId;
-	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netNopOnWrite);
+	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netReadOnWrite);
 }
 
 void armSensorUpdate(uv_timer_t *pTimer) {

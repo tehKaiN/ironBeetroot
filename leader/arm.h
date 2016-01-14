@@ -25,9 +25,12 @@ typedef struct _tLeaderArm{
 	UBYTE ubFieldY;            /// Current Y pos
 															// Command fields
 	UBYTE ubState;             /// See ARM_STATE_* flags
+	UBYTE ubCmdState;          /// See ARM_CMDSTATE_* flags
 	UBYTE ubCmdCount;          /// Total commands in pCmds
 	UBYTE pCmds[MAX_COMMANDS]; /// Current command list
+	UBYTE ubHasNewCmds;        /// 1: has commands, which haven't been sent yet
 	uv_mutex_t sMutex;         /// Mutex
+	uv_timer_t sTimer;         /// Route send timer
 } tLeaderArm;
 
 void armInit(
@@ -39,7 +42,15 @@ tLeaderArm *armGetByConn(
 	IN tNetConn *pConn
 );
 
+void armPosUpdate(
+	IN uv_timer_t *pTimer
+);
+
 void armUpdate(
+	IN uv_timer_t *pTimer
+);
+
+void armSetRoute(
 	IN uv_timer_t *pTimer
 );
 
@@ -58,14 +69,15 @@ void armRoute(
 	IN tLeaderArm *pArm,
 	IN struct _tLeaderPlatform *pSrc,
 	IN struct _tLeaderPlatform *pDst
-
 );
 
 UBYTE armRouteCheck(
-	IN tLeaderArm *pArm,
-	IN UBYTE *pCmd,
-	IN UBYTE ubCmdCount
-		);
+	IN tLeaderArm *pArm
+);
+
+void armRouteReserve(
+	IN tLeaderArm *pArm
+);
 
 void armReservePlatform(
 	IN struct _tLeaderPlatform *pSrc,
@@ -74,17 +86,15 @@ void armReservePlatform(
 	IN UBYTE *pCmd,
 	IN UBYTE ubCmdCount,
 	IN tLeaderArm *pArm
-	);
-// TODO: Route mutex
+);
 
 void armFreePlatform(
 	IN struct _tLeaderPlatform *pPltfFree
-	);
+);
 
 
 
-void armRouteSend(
-	);
+void armRouteSend(void);
 
 
 #endif // GUARD_LEADER_ARM_H

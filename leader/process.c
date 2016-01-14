@@ -21,7 +21,6 @@ void processServerPacket(
 	}
 
 	switch(pPacket->sHead.ubType) {
-		// TODO: Arm status
 		case PACKET_SETTYPE:
 			processSetType(pClientConn, (tPacketSetType *)pPacket);
 			break;
@@ -31,14 +30,10 @@ void processServerPacket(
 		case PACKET_ARMPROGRESS:
 			processArmProgress(pClientConn, (tPacketArmProgress *)pPacket);
 			break;
-		case PACKET_ARMIDLE:
-      processArmIdle(pClientConn);
-			break;
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
 			logBinary(pPacket, pPacket->sHead.ubPacketLength);
 	}
-
 }
 
 void processSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
@@ -130,8 +125,11 @@ void processArmPos(tNetConn *pClientConn, tPacketArmPos *pPacket) {
 
 	// Update arm pos
 	uv_mutex_lock(&pArm->sMutex);
+	if(pArm->ubFieldX != pPacket->ubFieldX || pArm->ubFieldY != pPacket->ubFieldY)
+		logWrite("Arm moved to pos %hu,%hu", pPacket->ubFieldX, pPacket->ubFieldY);
 	pArm->ubFieldX = pPacket->ubFieldX;
 	pArm->ubFieldY = pPacket->ubFieldY;
+	pArm->ubState = pPacket->ubState;
 	uv_mutex_unlock(&pArm->sMutex);
 }
 
@@ -147,17 +145,6 @@ void processArmProgress(tNetConn *pClientConn, tPacketArmProgress *pPacket) {
 	pArm->ubFieldY = pPacket->ubY;
 	--g_sLeader.pFields[pArm->ubFieldX][pArm->ubFieldY];
 	uv_mutex_unlock(&pArm->sMutex);
-}
-
-void processArmIdle(tNetConn *pClientConn) {
-	tLeaderArm *pArm;
-
-	pArm = armGetByConn(pClientConn);
-	if(!pArm)
-		return;
-
-	pArm->ubState &= (0xFF ^ ARM_STATE_MOVING);
-	pArm->ubState |= ARM_STATE_IDLE;
 }
 
 //************************************************************Leader as client*/
@@ -244,12 +231,15 @@ void processPlatformListResponse(tPacketPlatformList *pPacket) {
   g_sLeader.sArmA.ubRangeY1 = pPacket->ubArmRangeBeginA;
   g_sLeader.sArmA.ubRangeX1 = 0;
   g_sLeader.sArmA.ubRangeY2 = pPacket->ubArmRangeEndA;
-  g_sLeader.sArmA.ubRangeX2 = pPacket->ubHallHeight-1;
+  g_sLeader.sArmA.ubRangeX2 = pPacket->ubHallWidth-1;
 
   g_sLeader.sArmB.ubRangeY1 = pPacket->ubArmRangeBeginB;
   g_sLeader.sArmB.ubRangeX1 = 0;
   g_sLeader.sArmB.ubRangeY2 = pPacket->ubArmRangeEndB;
-  g_sLeader.sArmB.ubRangeX2 = pPacket->ubHallHeight-1;
+  g_sLeader.sArmB.ubRangeX2 = pPacket->ubHallWidth-1;
+  logWrite("Hall dimensions: %hux%hu", g_sLeader.ubWidth, g_sLeader.ubHeight);
+  logWrite("Arm A Range: %hu,%hu to %hu,%hu",g_sLeader.sArmA.ubRangeX1, g_sLeader.sArmA.ubRangeY1, g_sLeader.sArmA.ubRangeX2, g_sLeader.sArmA.ubRangeY2);
+  logWrite("Arm B Range: %hu,%hu to %hu,%hu",g_sLeader.sArmB.ubRangeX1, g_sLeader.sArmB.ubRangeY1, g_sLeader.sArmB.ubRangeX2, g_sLeader.sArmB.ubRangeY2);
 
 	platformAlloc(pPacket->ubPlatformCount);
 
@@ -305,16 +295,22 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
     pPackage->ulId = pPacket->pPackages[i].ubId;
     pPackage->pPlatformDst = pPlatform;
     pPackage->pPlatformHlp = 0;
-
     switch(pPacket->pPackages[i].ubPosType) {
 			case PACKAGE_POS_ARMA:
 				pPackage->pArm = &g_sLeader.sArmA;
+				pPackage->pPlatformCurr = 0;
+				pPackage->pPlatformDst = pPlatform;
 				continue;
 			case PACKAGE_POS_ARMB:
 				pPackage->pArm = &g_sLeader.sArmB;
+				pPackage->pPlatformCurr = 0;
+				pPackage->pPlatformDst = pPlatform;
 				continue;
 			case PACKAGE_POS_PLATFORM:
+				pPackage->pArm = 0;
 				pPlatform = platformGetById(pPacket->pPackages[i].ubPlatformCurrId);
+				pPackage->pPlatformCurr = pPlatform;
+				pPlatform = platformGetById(pPacket->pPackages[i].ubPlatformDestId);
 				pPackage->pPlatformDst = pPlatform;
 				continue;
 		}

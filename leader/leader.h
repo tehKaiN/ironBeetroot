@@ -22,6 +22,7 @@ typedef struct _tLeader{
 	                              // Timers
 	uv_timer_t sRouteTimer;      /// Routing timer
 	uv_timer_t sHallTimer;       /// Hall status poll timer
+	uv_timer_t sArmPosTimer;     /// Arm pos poll timer
 	UBYTE ubReady;               /// See READY_* flags
 	                              // Arm fields
 	tLeaderArm sArmA;            /// HE HE HE...
@@ -37,6 +38,7 @@ typedef struct _tLeader{
 	tLeaderPackage *pPackages;  /// Package array
 	UBYTE ubPackageCount;       /// Package count
 	uv_mutex_t sPackageMutex;   /// Mutex for pPackages & ubPackageCount
+	uv_mutex_t sRouteMutex;     /// Mutex for route
 } tLeader;
 
 void leaderCreate(void);

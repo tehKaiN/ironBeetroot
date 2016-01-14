@@ -43,6 +43,7 @@ void hallCreate(void) {
   // TODO(#2): Load dimensions from config
   g_sHall.ubWidth = 20;
   g_sHall.ubHeight = 9;
+  logWrite("Creating hall %hux%hu", g_sHall.ubWidth, g_sHall.ubHeight);
 
 	// Generate storage fields
 	logWrite("Generating storage...");

@@ -41,20 +41,27 @@ void leaderCreate(void) {
 	armInit(&g_sLeader.sArmB, ARM_ID_B);
 
 	uv_mutex_init(&g_sLeader.sPackageMutex);
+	uv_mutex_init(&g_sLeader.sRouteMutex);
 
 	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sRouteTimer);
 	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sHallTimer);
-	uv_timer_start(&g_sLeader.sRouteTimer, armUpdate, 5000, 0);
-	uv_timer_start(&g_sLeader.sRouteTimer, packageUpdate, 200, 200);
+	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sArmPosTimer);
+	uv_timer_start(&g_sLeader.sRouteTimer, armUpdate, 1000, 1000);
+	uv_timer_start(&g_sLeader.sHallTimer, packageUpdate, 200, 200);
+	uv_timer_start(&g_sLeader.sArmPosTimer, armPosUpdate, 200, 200);
 }
 
 void leaderDestroy(void) {
 	uv_timer_stop(&g_sLeader.sRouteTimer);
 	uv_timer_stop(&g_sLeader.sHallTimer);
+	uv_timer_stop(&g_sLeader.sArmA.sTimer);
+	uv_timer_stop(&g_sLeader.sArmB.sTimer);
+	uv_timer_stop(&g_sLeader.sArmPosTimer);
 
 	uv_mutex_destroy(&g_sLeader.sArmA.sMutex);
 	uv_mutex_destroy(&g_sLeader.sArmB.sMutex);
 	uv_mutex_destroy(&g_sLeader.sPackageMutex);
+	uv_mutex_destroy(&g_sLeader.sRouteMutex);
 
 	platformFree();
 	packageFree();
