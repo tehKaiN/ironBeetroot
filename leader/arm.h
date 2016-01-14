@@ -23,6 +23,8 @@ typedef struct _tLeaderArm{
 	UBYTE ubState;   /// See ARM_STATE_* flags
 	UBYTE ubFieldX;
 	UBYTE ubFieldY;
+	UBYTE pCmds[MAX_COMMANDS];
+	UBYTE ubCmdCount;
 } tLeaderArm;
 
 void armUpdate(
@@ -43,16 +45,35 @@ struct _tLeaderPlatform *armGetFreeHelper(
 void armRoute(
 	IN tLeaderArm *pArm,
 	IN struct _tLeaderPlatform *pSrc,
-	IN struct _tLeaderPlatform *pDst,
-	IN tPacketArmCommands *pCmdStr
+	IN struct _tLeaderPlatform *pDst
+
 );
+
+UBYTE armRouteCheck(
+	IN tLeaderArm *pArm,
+	IN UBYTE *pCmd,
+	IN UBYTE ubCmdCount
+		);
 
 void armReservePlatform(
 	IN struct _tLeaderPlatform *pSrc,
 	IN struct _tLeaderPlatform *pDst,
 	IN struct _tLeaderPlatform *pPltfReserve,
+	IN UBYTE *pCmd,
+	IN UBYTE ubCmdCount,
 	IN tLeaderArm *pArm
 	);
+// TODO: Route mutex
+
+void armFreePlatform(
+	IN struct _tLeaderPlatform *pPltfFree
+	);
+
+
+
+void armRouteSend(
+	);
+
 
 #endif // GUARD_LEADER_ARM_H
 

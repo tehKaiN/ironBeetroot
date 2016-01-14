@@ -30,7 +30,7 @@ typedef struct _tLeader{
 	tLeaderPlatform *pPlatforms; /// Platform array
 	UBYTE ubPlatformCount;       /// Platform count
 	                              // Field fields
-	UBYTE *pFields;              /// 2D Field array
+	UBYTE **pFields;             /// 2D Field array
 	UBYTE ubWidth;               /// Hall width
 	UBYTE ubHeight;              /// Hall height
 	                              // Package fields

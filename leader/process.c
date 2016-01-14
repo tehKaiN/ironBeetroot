@@ -1,4 +1,5 @@
 #include "process.h"
+#include "../common/mem.h"
 #include "../common/log.h"
 #include "../common/packet.h"
 #include "../common/net/server.h"
@@ -148,7 +149,7 @@ void processSetTypeResponse(tPacketSetTypeResponse *pResponse) {
 
 void processPlatformListResponse(tPacketPlatformList *pPacket) {
 	tLeaderPlatform *pPlatform;
-	UBYTE i;
+	UBYTE i, ubX;
 
 	logSuccess("Got info about %hu platforms", pPacket->ubPlatformCount);
 	if(pPacket->ubPlatformCount > MAX_PLATFORMS) {
@@ -159,8 +160,14 @@ void processPlatformListResponse(tPacketPlatformList *pPacket) {
 		return;
 	}
 
+	// Generate field array
   g_sLeader.ubHeight = pPacket->ubHallHeight;
   g_sLeader.ubWidth = pPacket->ubHallWidth;
+  g_sLeader.pFields = memAlloc(pPacket->ubHallWidth * sizeof(UBYTE*));
+  for(ubX = 0; ubX != pPacket->ubHallWidth; ++ubX) {
+		g_sLeader.pFields[ubX] = memAlloc(pPacket->ubHallHeight);
+		memset(g_sLeader.pFields[ubX], 0, pPacket->ubHallHeight);
+  }
 
 	platformAlloc(pPacket->ubPlatformCount);
 
@@ -191,7 +198,7 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
 	tLeaderPlatform *pPlatform;
 	tLeaderPackage *pPackage;
 
-]	// Sanity check
+	// Sanity check
 	if(pPacket->ubPackageCount > MAX_PACKAGES) {
 		logError(
 			"Package count too high: %hu > %hu",
