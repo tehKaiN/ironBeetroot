@@ -263,13 +263,40 @@ UBYTE armRouteCheck(
 		}
 	// Check if field is reserved
 		if(
-			(pArm->ubId == ARM_ID_A && g_sLeader.pFields[ubX][ubY] == FIELD_RESERVEDB) ||
-			(pArm->ubId == ARM_ID_B && g_sLeader.pFields[ubX][ubY] == FIELD_RESERVEDA)
+			(pArm->ubId == ARM_ID_A && g_sLeader.pFields[ubX][ubY] == 0)
 		)
 			return 0;
 	}
 	return 1;
 }
+
+void armRouteReserve(
+		tLeaderArm *pArm, tLeader *pReserve, UBYTE *pCmd, UBYTE ubCmdCount
+		) {
+				UBYTE ubX=pArm->ubFieldX;
+				UBYTE ubY=pArm->ubFieldY;
+				UBYTE i;
+	for(i=0; i<ubCmdCount; i++) {
+		// Update position
+		switch (pCmd[i]){
+			case ARM_CMD_MOVE_N:
+				ubY--;
+				break;
+			case ARM_CMD_MOVE_S:
+				ubY++;
+				break;
+			case ARM_CMD_MOVE_E:
+				ubX++;
+				break;
+			case ARM_CMD_MOVE_W:
+				ubY--;
+				break;
+		}
+		if(pArm->ubId == ARM_ID_A) pReserve->pFields[ubX][ubY]++;
+		else if(pArm->ubId == ARM_ID_B) pReserve->pFields[ubX][ubY]++;
+		else logWrite("Error, wrong ARM_ID");
+	}
+	}
 
 void armReservePlatform( tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
 	 tLeaderPlatform *pPltfReserve, UBYTE *pCmd, UBYTE ubCmdCount,
