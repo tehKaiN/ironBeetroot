@@ -25,8 +25,15 @@ void processServerPacket(
 		case PACKET_SETTYPE:
 			processSetType(pClientConn, (tPacketSetType *)pPacket);
 			break;
-		// TODO: Arm status update
-		// ...
+		case PACKET_R_GETARMPOS:
+      processArmPos(pClientConn, (tPacketArmPos *)pPacket);
+			break;
+		case PACKET_ARMPROGRESS:
+			processArmProgress(pClientConn, (tPacketArmProgress *)pPacket);
+			break;
+		case PACKET_ARMIDLE:
+      processArmIdle(pClientConn);
+			break;
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
 			logBinary(pPacket, pPacket->sHead.ubPacketLength);
@@ -83,10 +90,74 @@ void processSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
 		);
 	}
 
+	logWrite("Additional arm ID: %hu", pPacket->ubExtra);
+	if(pPacket->ubExtra == ARM_ID_A) {
+		if(g_sLeader.sArmA.pConn) {
+			logError("Arm A already logged in");
+			// TODO(#3): close client
+			return;
+		}
+		g_sLeader.sArmA.pConn = pClientConn;
+		logSuccess("Logged as Arm A");
+	}
+	else if(pPacket->ubExtra == ARM_ID_B) {
+		if(g_sLeader.sArmB.pConn) {
+			logError("Arm B already logged in");
+			// TODO(#3): close client
+			return;
+		}
+		g_sLeader.sArmB.pConn = pClientConn;
+		logSuccess("Logged as Arm B");
+	}
+	else {
+		logError("Unknown arm id: %hu", pPacket->ubExtra);
+		// TODO(#3): close client
+		return;
+	}
+
 	netSend(pClientConn, (tPacket*)&sResponse, 0);
 	if(!sResponse.ubIsOk) {
 		// TODO(#3): Close client
 	}
+}
+
+void processArmPos(tNetConn *pClientConn, tPacketArmPos *pPacket) {
+	tLeaderArm *pArm;
+
+	pArm = armGetByConn(pClientConn);
+	if(!pArm)
+		return;
+
+	// Update arm pos
+	uv_mutex_lock(&pArm->sMutex);
+	pArm->ubFieldX = pPacket->ubFieldX;
+	pArm->ubFieldY = pPacket->ubFieldY;
+	uv_mutex_unlock(&pArm->sMutex);
+}
+
+void processArmProgress(tNetConn *pClientConn, tPacketArmProgress *pPacket) {
+	tLeaderArm *pArm;
+
+	pArm = armGetByConn(pClientConn);
+	if(!pArm)
+		return;
+
+	uv_mutex_lock(&pArm->sMutex);
+	pArm->ubFieldX = pPacket->ubX;
+	pArm->ubFieldY = pPacket->ubY;
+	// TODO(#9): react to pPacket->ubCmdDone;
+	uv_mutex_unlock(&pArm->sMutex);
+}
+
+void processArmIdle(tNetConn *pClientConn) {
+	tLeaderArm *pArm;
+
+	pArm = armGetByConn(pClientConn);
+	if(!pArm)
+		return;
+
+	pArm->ubState &= (0xFF ^ ARM_STATE_MOVING);
+	pArm->ubState |= ARM_STATE_IDLE;
 }
 
 //************************************************************Leader as client*/
@@ -180,13 +251,15 @@ void processPlatformListResponse(tPacketPlatformList *pPacket) {
 		pPlatform->ubX = pPacket->pPlatforms[i].ubX;
 		pPlatform->ubY = pPacket->pPlatforms[i].ubY;
 
+		// Each arm may only put package on half of helper platforms
+		// Platforms are przeplotted to make it more rownomierne
 		if(pPlatform->ubId & 1) {
-			pPlatform->pArmIn = g_sLeader.pArmA;
-			pPlatform->pArmOut = g_sLeader.pArmB;
+			pPlatform->pArmIn = &g_sLeader.sArmA;
+			pPlatform->pArmOut = &g_sLeader.sArmB;
 		}
 		else {
-			pPlatform->pArmIn = g_sLeader.pArmB;
-			pPlatform->pArmOut = g_sLeader.pArmA;
+			pPlatform->pArmIn = &g_sLeader.sArmB;
+			pPlatform->pArmOut = &g_sLeader.sArmA;
 		}
   }
 
@@ -224,10 +297,10 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
 
     switch(pPacket->pPackages[i].ubPosType) {
 			case PACKAGE_POS_ARMA:
-				pPackage->pArm = g_sLeader.pArmA;
+				pPackage->pArm = &g_sLeader.sArmA;
 				continue;
 			case PACKAGE_POS_ARMB:
-				pPackage->pArm = g_sLeader.pArmB;
+				pPackage->pArm = &g_sLeader.sArmB;
 				continue;
 			case PACKAGE_POS_PLATFORM:
 				pPlatform = platformGetById(pPacket->pPackages[i].ubPlatformCurrId);

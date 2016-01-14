@@ -6,6 +6,32 @@
 #include "..\common\log.h"
 #include "..\common\arm.h"
 
+void armInit(tLeaderArm *pArm, UBYTE ubId) {
+	uv_mutex_init(&pArm->sMutex);
+	memset(pArm->pCmds, 0, MAX_COMMANDS);
+	pArm->ubCmdCount = 0;
+	pArm->pConn = 0;
+	pArm->ubFieldX = 0;
+	pArm->ubFieldY = 0;
+	pArm->ubId = ubId;
+	pArm->ubRangeX1 = 0;
+	pArm->ubRangeX2 = 0;
+	pArm->ubRangeY1 = 0;
+	pArm->ubRangeY2 = 0;
+	pArm->ubState = ARM_STATE_IDLE;
+}
+
+tLeaderArm *armGetByConn(tNetConn *pConn) {
+	if(pConn == g_sLeader.sArmA.pConn)
+		return &g_sLeader.sArmA;
+	else if(pConn == g_sLeader.sArmB.pConn)
+		return &g_sLeader.sArmB;
+
+	logError("Client not an arm: 0x%p", pConn);
+	// TODO(#3): Close client
+	return 0;
+}
+
 void armUpdate(uv_timer_t *pTimer) {
 	tLeaderArm *pArm;
 	tLeaderPackage *pPackage;
@@ -51,12 +77,12 @@ void armUpdate(uv_timer_t *pTimer) {
 tLeaderArm *armGetIdle(void) {
 
 	// Is arm A idle?
-  if(!(g_sLeader.pArmA->ubState & ARM_STATE_MOVING))
-		return g_sLeader.pArmA;
+  if(!(g_sLeader.sArmA.ubState & ARM_STATE_IDLE))
+		return &g_sLeader.sArmA;
 
 	// Is arm B idle?
-  if(!(g_sLeader.pArmB->ubState & ARM_STATE_MOVING))
-		return g_sLeader.pArmB;
+  if(!(g_sLeader.sArmB.ubState & ARM_STATE_IDLE))
+		return &g_sLeader.sArmB;
 
 	return 0;
 }
@@ -272,10 +298,11 @@ UBYTE armRouteCheck(
 
 void armRouteReserve(
 		tLeaderArm *pArm, tLeader *pReserve, UBYTE *pCmd, UBYTE ubCmdCount
-		) {
-				UBYTE ubX=pArm->ubFieldX;
-				UBYTE ubY=pArm->ubFieldY;
-				UBYTE i;
+) {
+	UBYTE ubX, ubY, i;
+
+	ubX = pArm->ubFieldX;
+	ubY = pArm->ubFieldY;
 	for(i=0; i<ubCmdCount; i++) {
 		// Update position
 		switch (pCmd[i]){
@@ -292,48 +319,49 @@ void armRouteReserve(
 				ubY--;
 				break;
 		}
+		// TODO: Is condition needed here? Can be outside loop @ beginning
+		// TODO: Use logError, remove "Error" from string
 		if(pArm->ubId == ARM_ID_A) pReserve->pFields[ubX][ubY]++;
 		else if(pArm->ubId == ARM_ID_B) pReserve->pFields[ubX][ubY]++;
 		else logWrite("Error, wrong ARM_ID");
 	}
+}
+
+void armReservePlatform(
+	tLeaderPlatform *pSrc, tLeaderPlatform *pDst, tLeaderPlatform *pPltfReserve, 	UBYTE *pCmd, UBYTE ubCmdCount, tLeaderArm *pArm
+) {
+	UBYTE ubHelp;
+
+	ubHelp=0;    /// Troubleshooting var, prevents mistakenly reporting errors
+	if(pSrc->ubX == pPltfReserve->ubX && pSrc->ubY == pPltfReserve->ubY
+				&& pPltfReserve->pArmIn->ubId == ARM_ID_ILLEGAL
+				){
+		pPltfReserve->pArmIn->ubId=pArm->ubId;
+		ubHelp=1;
 	}
-
-void armReservePlatform( tLeaderPlatform *pSrc, tLeaderPlatform *pDst,
-	 tLeaderPlatform *pPltfReserve, UBYTE *pCmd, UBYTE ubCmdCount,
-	 tLeaderArm *pArm)
-	 {
-			UBYTE ubHelp;
-			ubHelp=0;    /// Troubleshooting var, prevents mistakenly reporting errors
-			if(pSrc->ubX == pPltfReserve->ubX && pSrc->ubY == pPltfReserve->ubY
-						&& pPltfReserve->pArmIn->ubId == ARM_ID_ILLEGAL
+	else if(pDst->ubX == pPltfReserve->ubX && pDst->ubY == pPltfReserve->ubY
+						&& pPltfReserve->pArmOut->ubId == ARM_ID_ILLEGAL
 						){
-				pPltfReserve->pArmIn->ubId=pArm->ubId;
-				ubHelp=1;
-			}
-			else if(pDst->ubX == pPltfReserve->ubX && pDst->ubY == pPltfReserve->ubY
-								&& pPltfReserve->pArmOut->ubId == ARM_ID_ILLEGAL
-								){
-				pPltfReserve->pArmOut->ubId=pArm->ubId;
-				ubHelp=1;
-			}
-			else if((pPltfReserve->pArmIn->ubId!=ARM_ID_ILLEGAL ||
-								pPltfReserve->pArmOut->ubId!=ARM_ID_ILLEGAL) && ubHelp == 0
-								){
-				logWrite("Not free.");
-				// TODO: Function for freeing platform
-				return;
-			}
-			else if((pSrc->ubX != pPltfReserve->ubX || pSrc->ubY != pPltfReserve->ubY
-						||	pDst->ubX != pPltfReserve->ubX || pDst->ubY != pPltfReserve->ubY
-								) && ubHelp == 0
-								){
-				logWrite("Wrong coordinants.");
-					return;
-			}
-		}
+		pPltfReserve->pArmOut->ubId=pArm->ubId;
+		ubHelp=1;
+	}
+	else if((pPltfReserve->pArmIn->ubId!=ARM_ID_ILLEGAL ||
+						pPltfReserve->pArmOut->ubId!=ARM_ID_ILLEGAL) && ubHelp == 0
+						){
+		logWrite("Not free.");
+		// TODO: Function for freeing platform
+		return;
+	}
+	else if((pSrc->ubX != pPltfReserve->ubX || pSrc->ubY != pPltfReserve->ubY
+				||	pDst->ubX != pPltfReserve->ubX || pDst->ubY != pPltfReserve->ubY
+						) && ubHelp == 0
+						){
+		logWrite("Wrong coordinants.");
+			return;
+	}
+}
 
-		void armFreePlatform(tLeaderPlatform *pPltfFree
-			 ){
-			 pPltfFree->pArmIn->ubId=ARM_ID_ILLEGAL;
-			 pPltfFree->pArmOut->ubId=ARM_ID_ILLEGAL;
-			 }
+void armFreePlatform(tLeaderPlatform *pPltfFree){
+	pPltfFree->pArmIn->ubId=ARM_ID_ILLEGAL;
+	pPltfFree->pArmOut->ubId=ARM_ID_ILLEGAL;
+}

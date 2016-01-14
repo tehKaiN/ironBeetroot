@@ -15,6 +15,20 @@ void processSetType(
 	IN tPacketSetType *pPacket
 );
 
+void processArmPos(
+	IN tNetConn *pClientConn,
+	IN tPacketArmPos *pPacket
+);
+
+void processArmProgress(
+	IN tNetConn *pClientConn,
+	IN tPacketArmProgress *pPacket
+);
+
+void processArmIdle(
+	IN tNetConn *pClientConn
+);
+
 void processClientOnConnect(
 	IN tNetClient *pClient
 );

@@ -1,31 +1,43 @@
 #ifndef GUARD_LEADER_ARM_H
 #define GUARD_LEADER_ARM_H
 
+#include <uv.h>
 #include "../common/types.h"
 #include "../common/packet.h"
-#include <uv.h>
+#include "../common/arm.h"
+#include "../common/net/net.h"
 #include "platform.h"
 struct _tLeaderPlatform;
-
-
-
-
 
 // NOTE: Each arm has half of helper platofrms to leave packages at
 
 typedef struct _tLeaderArm{
-	                  // Movement range fields
-	UBYTE ubId;
+	                            // Net stuff
+	tNetConn *pConn;           /// Connection handle
+	UBYTE ubId;                /// See ARM_ID_* flags
+	                            // Movement range fields
 	UBYTE ubRangeX1;
 	UBYTE ubRangeY1;
 	UBYTE ubRangeX2;
 	UBYTE ubRangeY2;
-	UBYTE ubState;   /// See ARM_STATE_* flags
-	UBYTE ubFieldX;
-	UBYTE ubFieldY;
-	UBYTE pCmds[MAX_COMMANDS];
-	UBYTE ubCmdCount;
+															// Position fields
+	UBYTE ubFieldX;            /// Current X pos
+	UBYTE ubFieldY;            /// Current Y pos
+															// Command fields
+	UBYTE ubState;             /// See ARM_STATE_* flags
+	UBYTE ubCmdCount;          /// Total commands in pCmds
+	UBYTE pCmds[MAX_COMMANDS]; /// Current command list
+	uv_mutex_t sMutex;         /// Mutex
 } tLeaderArm;
+
+void armInit(
+	IN tLeaderArm *pArm,
+	IN UBYTE ubId
+);
+
+tLeaderArm *armGetByConn(
+	IN tNetConn *pConn
+);
 
 void armUpdate(
 	IN uv_timer_t *pTimer

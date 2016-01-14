@@ -24,8 +24,8 @@ typedef struct _tLeader{
 	uv_timer_t sHallTimer;       /// Hall status poll timer
 	UBYTE ubReady;               /// See READY_* flags
 	                              // Arm fields
-	tLeaderArm *pArmA;           /// HE HE HE...
-	tLeaderArm *pArmB;           /// Secondary (lower) arm
+	tLeaderArm sArmA;            /// HE HE HE...
+	tLeaderArm sArmB;            /// Secondary (lower) arm
 	                              // Platform fields
 	tLeaderPlatform *pPlatforms; /// Platform array
 	UBYTE ubPlatformCount;       /// Platform count

@@ -37,6 +37,9 @@ void leaderCreate(void) {
 	g_sLeader.ubReady = 0;
 	g_sLeader.ubPlatformCount = 0;
 
+	armInit(&g_sLeader.sArmA, ARM_ID_A);
+	armInit(&g_sLeader.sArmB, ARM_ID_B);
+
 	uv_mutex_init(&g_sLeader.sPackageMutex);
 
 	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sRouteTimer);
@@ -49,6 +52,8 @@ void leaderDestroy(void) {
 	uv_timer_stop(&g_sLeader.sRouteTimer);
 	uv_timer_stop(&g_sLeader.sHallTimer);
 
+	uv_mutex_destroy(&g_sLeader.sArmA.sMutex);
+	uv_mutex_destroy(&g_sLeader.sArmB.sMutex);
 	uv_mutex_destroy(&g_sLeader.sPackageMutex);
 
 	platformFree();
