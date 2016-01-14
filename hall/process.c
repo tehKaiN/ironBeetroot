@@ -218,9 +218,31 @@ void processUpdatePlatforms(
 }
 
 void processPlatformList(tNetConn *pClientConn) {
+	UBYTE i;
   tPacketPlatformList sResponse;
 
-  packetPrepare(&sResponse, )
+	if(!hallCheckClient(pClientConn, CLIENT_TYPE_LEADER))
+		return;
+
+	logWrite("Got platform list request from leader 0x%p", pClientConn);
+
+  packetPrepare(
+		(tPacket*)&sResponse, PACKET_R_GETPLATFORMLIST, sizeof(tPacketPlatformList)
+	);
+
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	sResponse.ubHallHeight = g_sHall.ubHeight;
+	sResponse.ubHallWidth = g_sHall.ubWidth;
+	sResponse.ubPlatformCount = g_sHall.ubPlatformCount;
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		sResponse.pPlatforms[i].ubId = g_sHall.pPlatforms[i].ubId;
+		sResponse.pPlatforms[i].ubX = g_sHall.pPlatforms[i].ubFieldX;
+		sResponse.pPlatforms[i].ubY = g_sHall.pPlatforms[i].ubFieldY;
+		sResponse.pPlatforms[i].ubType = g_sHall.pPlatforms[i].ubType;
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+
+	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
 
 UBYTE _hallCheckClient(

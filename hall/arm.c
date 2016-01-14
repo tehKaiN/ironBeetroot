@@ -1,8 +1,9 @@
+#include "arm.h"
 #include "../common/log.h"
 #include "../common/net/net.h"
 #include "../common/packet.h"
+#include "../common/arm.h"
 
-#include "arm.h"
 #include "hall.h"
 
 const BYTE g_pDirDeltaX[] = {0,  0,  0,  1, -1}; // 0, N, S, E, W
@@ -31,7 +32,6 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
   pArm->uwX = (0xFF>>1) + (ubFieldPosX << 8);
   pArm->uwY = (0xFF>>1) + (((ubRangeBegin+ubRangeEnd)>>1) << 8);
   uv_mutex_init(&pArm->sMutex);
-  pArm->ubCmdState = ARM_CMDSTATE_IDLE;
 
 	// Start arm update timer
 	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
@@ -45,20 +45,9 @@ void armUpdate(uv_timer_t *pTimer) {
 
 	pArm = pTimer->data;
 	uv_mutex_lock(&pArm->sMutex);
-	switch(pArm->ubCmdState) {
-		case ARM_CMDSTATE_IDLE:
-			// Do nothing - await new cmds
-			return;
-		case ARM_CMDSTATE_DONE:
-			armGetNextCmd(pArm); // Current cmd done - get next cmd ready
-			break;
-		case ARM_CMDSTATE_NEW:
-			armStartCmd(pArm);   // Start current cmd
-			break;
-		case ARM_CMDSTATE_BUSY:
-			armProcessCmd(pArm); // Process current cmd
-			break;
-	}
+
+	// TODO: Move arm according to actuator state
+
 	uv_mutex_unlock(&pArm->sMutex);
 }
 

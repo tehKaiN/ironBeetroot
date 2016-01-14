@@ -29,8 +29,8 @@ typedef struct _tSim{
 	uv_mutex_t sPlatformMutex; /// pPlatforms & ubPlatformCount Mutex
 	UBYTE ubPlatformCount;     /// Length of pPlatforms
 															// Arm fields
-	tArm sArmA;                /// HE HE HE...
-	tArm sArmB;                /// Secondary (lower) arm
+	tHallArm sArmA;            /// HE HE HE...
+	tHallArm sArmB;            /// Secondary (lower) arm
 } tHall;
 
 void hallCreate(void);

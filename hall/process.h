@@ -28,6 +28,10 @@ void processUpdatePlatforms(
 	IN tPacketUpdatePlatforms *pRequest
 );
 
+void processPlatformList(
+	IN tNetConn *pClientConn
+);
+
 UBYTE _hallCheckClient(
 	IN tNetConn *pClientConn,
 	IN UBYTE ubType,
