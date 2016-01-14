@@ -92,7 +92,6 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 			cmdProcessCurr();
 		}
 	}
-	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 100, 0);
 }
 
 void processSetCommands(tPacketArmCommands *pPacket) {

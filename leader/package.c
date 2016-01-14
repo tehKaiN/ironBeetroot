@@ -3,6 +3,7 @@
 #include "leader.h"
 #include "platform.h"
 #include "../common/mem.h"
+#include "../common/log.h"
 
 tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 	UBYTE i;
@@ -49,6 +50,7 @@ void packageUpdate(uv_timer_t *pTimer) {
 
 	if(!(g_sLeader.ubReady & READY_HALL))
 		return;
+	logWrite("Sending package list request");
 	packetPrepare((tPacket *)&sHead, PACKET_GETPACKAGELIST, sizeof(sHead));
 
 	netSend(&g_sLeader.pClient->sSrvConn, (tPacket *)&sHead, netNopOnWrite);

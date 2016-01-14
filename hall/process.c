@@ -31,6 +31,9 @@ void processProtocol(
 		case PACKET_UPDATEPLATFORMS:
 			processUpdatePlatforms(pClientConn, (tPacketUpdatePlatforms*)pPacket);
 			break;
+		case PACKET_GETPLATFORMLIST:
+			processPlatformList(pClientConn);
+			break;
 		default:
 			logWarning("Unknown packet type: %hu",
 				pPacket->sHead.ubType
@@ -212,6 +215,12 @@ void processUpdatePlatforms(
 		sResponse.ubPlaced = 0;
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
+}
+
+void processPlatformList(tNetConn *pClientConn) {
+  tPacketPlatformList sResponse;
+
+  packetPrepare(&sResponse, )
 }
 
 UBYTE _hallCheckClient(

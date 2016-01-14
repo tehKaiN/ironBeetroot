@@ -31,7 +31,7 @@ void armCreate(void) {
 	uv_mutex_init(&g_sArm.sCmdMutex);
 
 	uv_timer_init(g_sNetManager.pLoop, &g_sArm.sSensorTimer);
-	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 100, 0);
+	uv_timer_start(&g_sArm.sSensorTimer, armSensorUpdate, 200, 200);
 }
 
 void armDestroy(void) {

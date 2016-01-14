@@ -137,12 +137,19 @@ void processSetTypeResponse(tPacketSetTypeResponse *pResponse) {
 		"Identified as %s",
 		g_pClientTypes[CLIENT_TYPE_LEADER]
 	);
+
+	tPacketHead sPacket;
+	packetPrepare(
+		(tPacket *)&sPacket, PACKET_GETPLATFORMLIST, sizeof(tPacketHead)
+	);
+	netSend(&g_sLeader.pClient->sSrvConn, (tPacket *)&sPacket, netNopOnWrite);
 }
 
 void processPlatformListResponse(tPacketPlatformList *pPacket) {
 	tLeaderPlatform *pPlatform;
 	UBYTE i;
 
+	logSuccess("Got info about %hu platforms", pPacket->ubPlatformCount);
 	if(pPacket->ubPlatformCount > MAX_PLATFORMS) {
 		logError(
 			"Platform count too high: %hu > %hu",
@@ -183,6 +190,7 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
 	tLeaderPlatform *pPlatform;
 	tLeaderPackage *pPackage;
 
+	logWrite("Got package list");
 	// Sanity check
 	if(pPacket->ubPackageCount > MAX_PACKAGES) {
 		logError(
@@ -197,6 +205,7 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
 	if(g_sLeader.ubPackageCount != pPacket->ubPackageCount) {
 		packageFree();
 		packageAlloc(pPacket->ubPackageCount);
+		logWrite("Package count: %hu", pPacket->ubPackageCount);
 	}
 	// Fill package list
 	for(i = 0; i != pPacket->ubPackageCount; ++i) {

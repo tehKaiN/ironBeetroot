@@ -42,7 +42,7 @@ void leaderCreate(void) {
 	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sRouteTimer);
 	uv_timer_init(g_sNetManager.pLoop, &g_sLeader.sHallTimer);
 	uv_timer_start(&g_sLeader.sRouteTimer, armUpdate, 5000, 0);
-	uv_timer_start(&g_sLeader.sRouteTimer, packageUpdate, 5000, 0);
+	uv_timer_start(&g_sLeader.sRouteTimer, packageUpdate, 200, 200);
 }
 
 void leaderDestroy(void) {
