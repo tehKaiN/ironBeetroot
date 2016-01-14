@@ -249,6 +249,8 @@ typedef struct _tPacketArmPosPrec{
  */
 typedef struct _tPacketArmProgress{
 	tPacketHead sHead;
+	UBYTE ubX;
+	UBYTE ubY;
 	UBYTE ubCmdDone;    /// Idx of completed instruction on list
 } tPacketArmProgress;
 

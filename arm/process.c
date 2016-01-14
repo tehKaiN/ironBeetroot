@@ -83,6 +83,8 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 			);
 			uv_mutex_lock(&g_sArm.sCmdMutex);
 			sPacket.ubCmdDone = g_sArm.ubCmdCurr-1;
+			sPacket.ubX = g_sArm.uwCurrX>>8;
+			sPacket.ubY = g_sArm.uwCurrY>>8;
 			uv_mutex_unlock(&g_sArm.sCmdMutex);
 			netSend(
 				&g_sArm.pClientLeader->sSrvConn, (tPacket *)&sPacket, netNopOnWrite
