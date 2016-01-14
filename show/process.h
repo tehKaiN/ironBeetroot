@@ -21,5 +21,13 @@ void processSetTypeResponse(
 	IN tPacketSetTypeResponse *pResponse
 );
 
+void processPlatformList(
+	IN tPacketPlatformList *pPacket
+);
+
+void processArmPosPrec(
+	IN tPacketArmPosPrec *pPos
+);
+
 #endif // GUARD_SHOW_PROCESS_H
 

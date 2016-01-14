@@ -1,4 +1,5 @@
 #include "process.h"
+#include "../common/mem.h"
 #include "../common/log.h"
 #include "show.h"
 
@@ -14,7 +15,7 @@ void processHallPacket(
 			processPlatformList((tPacketPlatformList *)pPacket);
 			break;
 		case PACKET_R_GETARMPOSPREC:
-			processArmPosPrec((tPacketArmPos *)pPacket);
+			processArmPosPrec((tPacketArmPosPrec *)pPacket);
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
 			logBinary(pPacket, pPacket->sHead.ubPacketLength);
@@ -45,7 +46,7 @@ void processSetTypeResponse(tPacketSetTypeResponse *pResponse) {
 
 	logSuccess(
 		"Identified as %s",
-		g_pClientTypes[CLIENT_TYPE_CUSTOMER]
+		g_pClientTypes[CLIENT_TYPE_SHOW]
 	);
 }
 

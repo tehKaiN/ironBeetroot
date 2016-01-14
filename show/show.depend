@@ -1,22 +1,22 @@
 # depslib dependency file v1.0
-1452438454 source:d:\prg\_git\ironbeetroot\common\list.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\list.c
 	<uv.h>
 	"mem.h"
 	"list.h"
 
-1452639115 d:\prg\_git\ironbeetroot\common\mem.h
+1452717717 d:\prg\_git\ironbeetroot\common\mem.h
 	<stdio.h>
 	"types.h"
 	"list.h"
 
-1450126849 d:\prg\_git\ironbeetroot\common\types.h
+1452717717 d:\prg\_git\ironbeetroot\common\types.h
 	<stdint.h>
 	<windows.h>
 
-1451834154 d:\prg\_git\ironbeetroot\common\list.h
+1452717717 d:\prg\_git\ironbeetroot\common\list.h
 	<uv.h>
 
-1452368281 source:d:\prg\_git\ironbeetroot\common\log.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\log.c
 	<stdio.h>
 	<time.h>
 	<stdarg.h>
@@ -24,78 +24,83 @@
 	"log.h"
 	"../common/types.h"
 
-1452448030 d:\prg\_git\ironbeetroot\common\log.h
+1452717717 d:\prg\_git\ironbeetroot\common\log.h
 	<stdio.h>
 	<uv.h>
 	"types.h"
 
-1452440139 source:d:\prg\_git\ironbeetroot\common\mem.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\mem.c
 	<stdlib.h>
 	<string.h>
 	"mem.h"
 	"log.h"
 
-1452372284 source:d:\prg\_git\ironbeetroot\common\net\client.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\net\client.c
 	<stdio.h>
 	"client.h"
 	"../log.h"
 	"../packet.h"
 
-1452363869 d:\prg\_git\ironbeetroot\common\net\client.h
+1452717717 d:\prg\_git\ironbeetroot\common\net\client.h
 	<uv.h>
 	"../types.h"
 	"net.h"
 
-1452452227 d:\prg\_git\ironbeetroot\common\net\net.h
+1452717717 d:\prg\_git\ironbeetroot\common\net\net.h
 	<uv.h>
 	<time.h>
 	"../types.h"
 	"../list.h"
 	"../packet.h"
 
-1452609202 d:\prg\_git\ironbeetroot\common\packet.h
+1452787073 d:\prg\_git\ironbeetroot\common\packet.h
 	"types.h"
 
-1452452289 source:d:\prg\_git\ironbeetroot\common\net\net.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\net\net.c
 	"net.h"
 	"../log.h"
 	"../mem.h"
 	"server.h"
 	"client.h"
 
-1452364544 d:\prg\_git\ironbeetroot\common\net\server.h
+1452717717 d:\prg\_git\ironbeetroot\common\net\server.h
 	"../types.h"
 	"net.h"
 
-1452371250 source:d:\prg\_git\ironbeetroot\common\net\server.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\net\server.c
 	"server.h"
 	"../mem.h"
 	"../log.h"
 	<uv.h>
 
-1452451825 source:d:\prg\_git\ironbeetroot\common\packet.c
+1452717717 source:d:\prg\_git\ironbeetroot\common\packet.c
 	<stdlib.h>
 	"packet.h"
 	"log.h"
 
-1452708295 source:d:\prg\_git\ironbeetroot\show\process.c
+1452788085 source:d:\prg\_git\ironbeetroot\show\process.c
 	"process.h"
+	"../common/mem.h"
 	"../common/log.h"
 	"show.h"
 
-1452676133 d:\prg\_git\ironbeetroot\show\process.h
+1452788000 d:\prg\_git\ironbeetroot\show\process.h
 	"../common/types.h"
 	"../common/net/net.h"
 	"../common/packet.h"
 
-1452707441 d:\prg\_git\ironbeetroot\show\show.h
+1452717717 d:\prg\_git\ironbeetroot\show\show.h
 	<uv.h>
 	<SDL.h>
 	<SDL_ttf.h>
 	"../common/types.h"
 	"../common/net/net.h"
+	"package.h"
+	"customer.h"
+	"platform.h"
+	"arm.h"
 
-1452708309 source:d:\prg\_git\ironbeetroot\show\show.c
+1452718263 source:d:\prg\_git\ironbeetroot\show\show.c
 	"show.h"
 	"../common/log.h"
 	"../common/mem.h"
@@ -103,14 +108,14 @@
 	"process.h"
 	"gfx.h"
 
-1452707466 source:d:\prg\_git\ironbeetroot\show\gfx.c
+1452718291 source:d:\prg\_git\ironbeetroot\show\gfx.c
 	"gfx.h"
 	<SDL.h>
 	<SDL_ttf.h>
 	"show.h"
 	"../common/log.h"
 
-1452708456 d:\prg\_git\ironbeetroot\show\gfx.h
+1452717717 d:\prg\_git\ironbeetroot\show\gfx.h
 	<uv.h>
 	"../common/types.h"
 
@@ -435,4 +440,13 @@
 	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
+
+1452717717 d:\prg\_git\ironbeetroot\show\package.h
+
+1452717717 d:\prg\_git\ironbeetroot\show\customer.h
+	"platform.h"
+
+1452717717 d:\prg\_git\ironbeetroot\show\platform.h
+
+1452717717 d:\prg\_git\ironbeetroot\show\arm.h
 
