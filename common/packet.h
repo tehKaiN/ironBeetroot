@@ -157,21 +157,23 @@ typedef struct _tPacketUpdatePlatformsResponse{
  */
 
 typedef struct _tPacketPlatformList{
+	tPacketHead sHead;
+	UBYTE ubPlatformCount;
+	UBYTE ubHallWidth;
+	UBYTE ubHallHeight;
 	struct {
 		UBYTE ubId;
     UBYTE ubX;
     UBYTE ubY;
     UBYTE ubType;
 	} pPlatforms[MAX_PLATFORMS];
-	UBYTE ubPlatformCount;
-	UBYTE ubHallWidth;
-	UBYTE ubHallHeight;
 } tPacketPlatformList;
 
 /**
  * PACKET_R_GETPACKAGELIST
  */
 typedef struct _tPacketPackageList{
+	tPacketHead sHead;
   UBYTE ubPackageCount;
   struct {
 		UBYTE ubId;
@@ -185,6 +187,7 @@ typedef struct _tPacketPackageList{
  * PACKET_R_GETARMINFO
  */
 typedef struct _tPacketArmInfo{
+	tPacketHead sHead;
 	UBYTE ubRangeX1;
 	UBYTE ubRangeY1;
 	UBYTE ubRangeX2;
@@ -197,6 +200,7 @@ typedef struct _tPacketArmInfo{
  * PACKET_R_GETSENSORINFO
  */
 typedef struct _tPacketSensorInfo{
+	tPacketHead sHead;
 	UWORD uwX;
 	UWORD uwY;
 	UBYTE ubState;
@@ -206,6 +210,7 @@ typedef struct _tPacketSensorInfo{
  * PACKET_SETACTUATORS
  */
 typedef struct _tPacketActuators{
+	tPacketHead sHead;
 	UBYTE ubMotorX;
 	UBYTE ubMotorY;
 	UBYTE ubHeight;
@@ -216,6 +221,7 @@ typedef struct _tPacketActuators{
  * PACKET_SETARMCOMMANDS
  */
 typedef struct _tPacketArmCommands{
+	tPacketHead sHead;
 	UBYTE ubCmdCount;
 	UBYTE pCmds[MAX_COMMANDS];
 } tPacketArmCommands;
@@ -224,12 +230,14 @@ typedef struct _tPacketArmCommands{
  * PACKET_R_GETARMPOS
  */
 typedef struct _tPacketArmPos{
+	tPacketHead sHead;
 	UBYTE ubFieldX;
 	UBYTE ubFieldY;
 } tPacketArmPos;
 // TODO(#9): Leader should cyclically send PACKET_GETARMPOS to arm
 
 typedef struct _tPacketArmPosPrec{
+	tPacketHead sHead;
 	UWORD uwX;
 	UWORD uwY;
 } tPacketArmPosPrec;
@@ -239,6 +247,7 @@ typedef struct _tPacketArmPosPrec{
  * PACKET_ARMPROGRESS
  */
 typedef struct _tPacketArmProgress{
+	tPacketHead sHead;
 	UBYTE ubCmdDone;    /// Idx of completed instruction on list
 } tPacketArmProgress;
 
@@ -246,6 +255,7 @@ typedef struct _tPacketArmProgress{
  * PACKET_R_GETCUSTOMERLIST
  */
 typedef struct _tPacketCustomerList{
+	tPacketHead sHead;
 	UBYTE ubCustomerCount;          /// Total customer count
 	struct {
 		UBYTE ubId;                   /// Customer id

@@ -114,6 +114,7 @@ void processClientPacket(
 			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
 			break;
 		case PACKET_R_GETPLATFORMLIST:
+			logWrite("Got platform list");
 			processPlatformListResponse((tPacketPlatformList*)pPacket);
 			break;
 		case PACKET_R_GETPACKAGELIST:

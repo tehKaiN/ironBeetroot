@@ -34,6 +34,9 @@ void processProtocol(
 		case PACKET_GETPLATFORMLIST:
 			processPlatformList(pClientConn);
 			break;
+		case PACKET_GETPACKAGELIST:
+      processPackageList(pClientConn);
+			break;
 		default:
 			logWarning("Unknown packet type: %hu",
 				pPacket->sHead.ubType
@@ -243,6 +246,10 @@ void processPlatformList(tNetConn *pClientConn) {
 	uv_mutex_unlock(&g_sHall.sPlatformMutex);
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
+}
+
+void processPackageList(pClientConn) {
+	// TODO: Process package list
 }
 
 UBYTE _hallCheckClient(
