@@ -8,18 +8,24 @@
 // TODO(#2): config
 #include "process.h"
 
-int main(LONG lArcCount, char *szArgs[]){
+int main(LONG lArgCount, char *szArgs[]){
 	logCreate("arm.log");
 	memCreate("arm_mem.log");
 	netCreate();
 	armCreate();
-	if(strcmp(szArgs[0], "A"))
+
+	if(lArgCount < 2) {
+		logError("No arm type specified (add A/B arg to executable)");
+		return 1;
+	}
+
+	if(!strcmp(szArgs[1], "A"))
 		g_sArm.ubId = ARM_ID_A;
-	else if(strcmp(szArgs[0], "B"))
+	else if(!strcmp(szArgs[1], "B"))
 		g_sArm.ubId = ARM_ID_B;
 	else {
 		g_sArm.ubId = ARM_ID_ILLEGAL;
-		logWrite("Unknown arm type: %s", szArgs[0]);
+		logWrite("Unknown arm type: %s", szArgs[1]);
 		return 1;
 	}
 
@@ -62,7 +68,7 @@ void armOnConnect(tNetClient *pClient) {
 
 	g_sArm.ubReady = 0;
 	packetMakeSetType(&sPacket, CLIENT_TYPE_ARM);
-	sPacket->ubExtra = g_sArm.ubId;
+	sPacket.ubExtra = g_sArm.ubId;
 	netSend(&pClient->sSrvConn, (tPacket*)&sPacket, netNopOnWrite);
 }
 

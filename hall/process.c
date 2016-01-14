@@ -2,6 +2,7 @@
 
 #include "../common/mem.h"
 #include "../common/log.h"
+#include "../common/arm.h"
 #include "../common/packet.h"
 #include "../common/net/server.h"
 
@@ -37,10 +38,10 @@ void processProtocol(
 		case PACKET_GETPACKAGELIST:
       processPackageList(pClientConn);
 			break;
+		case PACKET_SETACTUATORS:
+			processActuators(pClientConn, (tPacketActuators*)pPacket);
 		default:
-			logWarning("Unknown packet type: %hu",
-				pPacket->sHead.ubType
-			);
+			logWarning("Unknown packet type: %hu", pPacket->sHead.ubType);
       logBinary(pPacket, pPacket->sHead.ubPacketLength);
 	}
 
@@ -98,6 +99,32 @@ void processSetType(tNetConn *pClientConn, tPacketSetType *pPacket) {
 			) {
 				logWarning("No more platforms for client %p", pClientConn);
 				sResponse.ubIsOk = 0;
+			}
+		}
+		else if(ubNewClientType == CLIENT_TYPE_ARM) {
+			logWrite("Additional arm ID: %hu", pPacket->ubExtra);
+			if(pPacket->ubExtra == ARM_ID_A) {
+				if(g_sHall.sArmA.pConn) {
+					logError("Arm A already logged in");
+					// TODO(#3): close client
+					return;
+				}
+				g_sHall.sArmA.pConn = pClientConn;
+				logSuccess("Logged as Arm A");
+			}
+			else if(pPacket->ubExtra == ARM_ID_B) {
+				if(g_sHall.sArmB.pConn) {
+					logError("Arm B already logged in");
+					// TODO(#3): close client
+					return;
+				}
+				g_sHall.sArmB.pConn = pClientConn;
+				logSuccess("Logged as Arm B");
+			}
+			else {
+				logError("Unknown arm id: %hu", pPacket->ubExtra);
+				// TODO(#3): close client
+				return;
 			}
 		}
 	}
@@ -288,6 +315,67 @@ void processPackageList(tNetConn *pClientConn) {
 	}
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
+}
+
+void processActuators(tNetConn *pClientConn, tPacketActuators* pPacket) {
+	tHallArm *pArm;
+
+	// Determine arm
+  if(g_sHall.sArmA.pConn == pClientConn)
+		pArm = &g_sHall.sArmA;
+	else if(g_sHall.sArmB.pConn == pClientConn)
+		pArm = &g_sHall.sArmB;
+	else {
+		logError("Unknown arm client: 0x%p", pClientConn);
+		return;
+	}
+
+	// Move arm on X
+	uv_mutex_lock(&pArm->sMutex);
+	if(pPacket->ubMotorX == MOTOR_PLUS) {
+		pArm->uwX += 1 << pArm->ubSpeed;
+	}
+	else if(pPacket->ubMotorX == MOTOR_MINUS) {
+		pArm->uwX -= 1 << pArm->ubSpeed;
+	}
+
+	// Move arm on Y
+	if(pPacket->ubMotorX == MOTOR_PLUS) {
+		pArm->uwY += 1 << pArm->ubSpeed;
+	}
+	else if(pPacket->ubMotorX == MOTOR_MINUS) {
+		pArm->uwY -= 1 << pArm->ubSpeed;
+	}
+
+	// Change grab state
+	if(pPacket->ubGrab == GRAB_CLOSE) {
+		if((pArm->ubState & ARM_STATE_GRAB_MASK) == ARM_STATE_GRABMOVE)
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_CLOSED;
+		else
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_GRABMOVE;
+	}
+	else if(pPacket->ubGrab == GRAB_OPEN) {
+		if((pArm->ubState & ARM_STATE_GRAB_MASK) == ARM_STATE_GRABMOVE)
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_OPEN;
+		else
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_GRABMOVE;
+	}
+
+	// Change grab height
+	if(pPacket->ubHeight == HEIGHT_DOWN) {
+		if((pArm->ubState & ARM_STATE_MOVEV_MASK) == ARM_STATE_MOVEV)
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_DOWN;
+		else
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_MOVEV;
+	}
+	else if(pPacket->ubHeight == HEIGHT_UP) {
+		if((pArm->ubState & ARM_STATE_MOVEV_MASK) == ARM_STATE_MOVEV)
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_UP;
+		else
+			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_MOVEV;
+	}
+
+	uv_mutex_unlock(&pArm->sMutex);
 }
 
 UBYTE _hallCheckClient(

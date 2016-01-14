@@ -13,9 +13,9 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
   tHallArm *pArm;
 
   // Determine arm
-  if(ubArmId == ARM_A)
+  if(ubArmId == ARM_ID_A)
 		pArm = &g_sHall.sArmA;
-	else if(ubArmId == ARM_B)
+	else if(ubArmId == ARM_ID_B)
 		pArm = &g_sHall.sArmB;
   else {
 		logError("Unknown arm id: %hu", ubArmId);
@@ -23,6 +23,7 @@ void armInit(UBYTE ubArmId, UBYTE ubRangeBegin, UBYTE ubRangeEnd, UBYTE ubSpeed,
   }
 
   // Init struct fields
+  pArm->pConn = 0;
   pArm->pPackage = 0;
   pArm->ubId = ubArmId;
   pArm->ubRangeBegin = ubRangeBegin;

@@ -1,8 +1,10 @@
+#include "hall.h"
+
 #include "../common/mem.h"
 #include "../common/log.h"
+#include "../common/arm.h"
 #include "../common/net/server.h"
 
-#include "hall.h"
 #include "config.h"
 #include "process.h"
 
@@ -67,8 +69,8 @@ void hallCreate(void) {
 
 	// Generate arms
 	logWrite("Generating arms...");
-	armInit(ARM_A, 0, 4, 6, g_sHall.ubWidth >> 1);
-	armInit(ARM_B, 4, 8, 6, g_sHall.ubHeight >> 1);
+	armInit(ARM_ID_A, 0, 4, 6, g_sHall.ubWidth >> 1);
+	armInit(ARM_ID_B, 4, 8, 6, g_sHall.ubHeight >> 1);
 
 	logSuccess("Simulation created");
 }
