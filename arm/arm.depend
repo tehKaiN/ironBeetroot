@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1452004116 source:c:\users\jacek\documents\github\ironbeetroot\common\log.c
+1452373788 source:c:\users\jacek\documents\github\ironbeetroot\common\log.c
 	<stdio.h>
 	<time.h>
 	<stdarg.h>
@@ -7,7 +7,7 @@
 	"log.h"
 	"../common/types.h"
 
-1452004116 c:\users\jacek\documents\github\ironbeetroot\common\log.h
+1452536412 c:\users\jacek\documents\github\ironbeetroot\common\log.h
 	<stdio.h>
 	<uv.h>
 	"types.h"
@@ -130,4 +130,83 @@
 1452717717 d:\prg\_git\ironbeetroot\arm\cmd.h
 	"../common/types.h"
 	"../common/packet.h"
+
+1452536412 source:c:\users\jacek\documents\github\ironbeetroot\common\list.c
+	<uv.h>
+	"mem.h"
+	"list.h"
+
+1452632629 c:\users\jacek\documents\github\ironbeetroot\common\mem.h
+	<stdio.h>
+	"types.h"
+	"list.h"
+
+1452004116 c:\users\jacek\documents\github\ironbeetroot\common\list.h
+	<uv.h>
+
+1452536412 source:c:\users\jacek\documents\github\ironbeetroot\common\mem.c
+	<stdlib.h>
+	<string.h>
+	"mem.h"
+	"log.h"
+
+1452373788 source:c:\users\jacek\documents\github\ironbeetroot\common\net\client.c
+	<stdio.h>
+	"client.h"
+	"../log.h"
+	"../packet.h"
+
+1452373788 c:\users\jacek\documents\github\ironbeetroot\common\net\client.h
+	<uv.h>
+	"../types.h"
+	"net.h"
+
+1452536412 c:\users\jacek\documents\github\ironbeetroot\common\net\net.h
+	<uv.h>
+	<time.h>
+	"../types.h"
+	"../list.h"
+	"../packet.h"
+
+1452787433 c:\users\jacek\documents\github\ironbeetroot\common\packet.h
+	"types.h"
+
+1452536412 source:c:\users\jacek\documents\github\ironbeetroot\common\net\net.c
+	"net.h"
+	"../log.h"
+	"../mem.h"
+	"server.h"
+	"client.h"
+
+1452373788 c:\users\jacek\documents\github\ironbeetroot\common\net\server.h
+	"../types.h"
+	"net.h"
+
+1452373788 source:c:\users\jacek\documents\github\ironbeetroot\common\net\server.c
+	"server.h"
+	"../mem.h"
+	"../log.h"
+	<uv.h>
+
+1452536412 source:c:\users\jacek\documents\github\ironbeetroot\common\packet.c
+	<stdlib.h>
+	"packet.h"
+	"log.h"
+
+1452632631 source:c:\users\jacek\documents\github\ironbeetroot\arm\cmd.c
+	"cmd.h"
+	"../common/log.h"
+	"../common/arm.h"
+	"../common/packet.h"
+	"arm.h"
+
+1452632631 c:\users\jacek\documents\github\ironbeetroot\arm\cmd.h
+	"../common/types.h"
+	"../common/packet.h"
+
+1452763095 c:\users\jacek\documents\github\ironbeetroot\common\arm.h
+
+1452763094 c:\users\jacek\documents\github\ironbeetroot\arm\arm.h
+	"../common/arm.h"
+	"../common/net/net.h"
 

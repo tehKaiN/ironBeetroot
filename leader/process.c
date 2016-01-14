@@ -145,7 +145,7 @@ void processArmProgress(tNetConn *pClientConn, tPacketArmProgress *pPacket) {
 	uv_mutex_lock(&pArm->sMutex);
 	pArm->ubFieldX = pPacket->ubX;
 	pArm->ubFieldY = pPacket->ubY;
-	// TODO(#9): react to pPacket->ubCmdDone;
+	--g_sLeader.pFields[pArm->ubFieldX][pArm->ubFieldY];
 	uv_mutex_unlock(&pArm->sMutex);
 }
 

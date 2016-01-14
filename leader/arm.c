@@ -321,6 +321,7 @@ void armRouteReserve(
 		}
 		// TODO: Is condition needed here? Can be outside loop @ beginning
 		// TODO: Use logError, remove "Error" from string
+		// NOTE: Code done by Dutchered, only from my computer, let him repair
 		if(pArm->ubId == ARM_ID_A) pReserve->pFields[ubX][ubY]++;
 		else if(pArm->ubId == ARM_ID_B) pReserve->pFields[ubX][ubY]++;
 		else logWrite("Error, wrong ARM_ID");
