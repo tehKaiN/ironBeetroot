@@ -50,7 +50,6 @@ void packageUpdate(uv_timer_t *pTimer) {
 
 	if(!(g_sLeader.ubReady & READY_HALL))
 		return;
-	logWrite("Sending package list request");
 	packetPrepare((tPacket *)&sHead, PACKET_GETPACKAGELIST, sizeof(sHead));
 
 	netSend(&g_sLeader.pClient->sSrvConn, (tPacket *)&sHead, netNopOnWrite);

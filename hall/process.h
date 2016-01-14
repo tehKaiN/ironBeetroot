@@ -32,6 +32,10 @@ void processPlatformList(
 	IN tNetConn *pClientConn
 );
 
+void processPackageList(
+	IN tNetConn *pClientConn
+);
+
 UBYTE _hallCheckClient(
 	IN tNetConn *pClientConn,
 	IN UBYTE ubType,

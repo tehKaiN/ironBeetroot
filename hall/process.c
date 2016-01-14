@@ -248,8 +248,46 @@ void processPlatformList(tNetConn *pClientConn) {
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
 
-void processPackageList(pClientConn) {
-	// TODO: Process package list
+void processPackageList(tNetConn *pClientConn) {
+	UBYTE i;
+	UBYTE ubPackageCount;
+	tPacketPackageList sResponse;
+	tPackage *pPackage;
+
+	packetPrepare(
+		(tPacket *)&sResponse, PACKET_R_GETPACKAGELIST, sizeof(tPacketPackageList)
+	);
+
+	ubPackageCount = 0;
+	// Iterate through platforms
+	uv_mutex_lock(&g_sHall.sPlatformMutex);
+	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
+		pPackage = g_sHall.pPlatforms[i].pPackage;
+		if(pPackage) {
+      sResponse.pPackages[ubPackageCount].ubId = pPackage->ulIdx;
+      sResponse.pPackages[ubPackageCount].ubPlatformCurrId = g_sHall.pPlatforms[i].ubId;
+      sResponse.pPackages[ubPackageCount].ubPlatformDestId = g_sHall.pPlatforms[i].pPackage->pDest->ubId;
+      sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_PLATFORM;
+
+      ++ubPackageCount;
+		}
+	}
+	uv_mutex_unlock(&g_sHall.sPlatformMutex);
+
+	// Add packages grabbed by arms
+	if(g_sHall.sArmA.pPackage) {
+		sResponse.pPackages[ubPackageCount].ubId = g_sHall.sArmA.pPackage->ulIdx;
+		sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_ARMA;
+		++ubPackageCount;
+	}
+
+	if(g_sHall.sArmB.pPackage) {
+		sResponse.pPackages[ubPackageCount].ubId = g_sHall.sArmB.pPackage->ulIdx;
+		sResponse.pPackages[ubPackageCount].ubPosType = PACKAGE_POS_ARMB;
+		++ubPackageCount;
+	}
+
+	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
 
 UBYTE _hallCheckClient(

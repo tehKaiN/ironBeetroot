@@ -114,11 +114,11 @@ void processClientPacket(
 			processSetTypeResponse((tPacketSetTypeResponse*)pPacket);
 			break;
 		case PACKET_R_GETPLATFORMLIST:
-			logWrite("Got platform list");
 			processPlatformListResponse((tPacketPlatformList*)pPacket);
 			break;
 		case PACKET_R_GETPACKAGELIST:
 			processPackageListResponse((tPacketPackageList *)pPacket);
+			break;
 		default:
 			logWarning("Unknown packet: %hu", pPacket->sHead.ubType);
 			logBinary(pPacket, pPacket->sHead.ubPacketLength);
@@ -191,8 +191,7 @@ void processPackageListResponse(tPacketPackageList *pPacket) {
 	tLeaderPlatform *pPlatform;
 	tLeaderPackage *pPackage;
 
-	logWrite("Got package list");
-	// Sanity check
+]	// Sanity check
 	if(pPacket->ubPackageCount > MAX_PACKAGES) {
 		logError(
 			"Package count too high: %hu > %hu",
