@@ -72,10 +72,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.h" />
-		<Unit filename="hall.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="hall.h" />
 		<Unit filename="leader.c">
 			<Option compilerVar="CC" />
 		</Unit>

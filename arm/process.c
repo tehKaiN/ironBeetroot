@@ -65,8 +65,11 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 	g_sArm.ubState = pPacket->ubState;
 	uv_mutex_unlock(&g_sArm.sSensorMutex);
 
-	if(!cmdIsDone())
+	uv_mutex_lock(&g_sArm.sCmdMutex);
+	if(!cmdIsDone()) {
+		uv_mutex_unlock(&g_sArm.sCmdMutex);
 		return;
+	}
 
 	cmdStopActuators();
 	cmdGoNext();
@@ -78,20 +81,16 @@ void processSensorInfoResponse(tPacketSensorInfo *pPacket) {
 	packetPrepare(
 		(tPacket *)&sPacket, PACKET_ARMPROGRESS, sizeof(tPacketArmProgress)
 	);
-	uv_mutex_lock(&g_sArm.sCmdMutex);
 	sPacket.ubCmdDone = g_sArm.ubCmdCurr-1;
 	sPacket.ubX = g_sArm.uwCurrX>>8;
 	sPacket.ubY = g_sArm.uwCurrY>>8;
-	uv_mutex_unlock(&g_sArm.sCmdMutex);
 	netSend(
 		&g_sArm.pClientLeader->sSrvConn, (tPacket *)&sPacket, netNopOnWrite
-	);
-	logWrite(
-		"Current command done, x: %hu, y: %hu", sPacket.ubX, sPacket.ubY
 	);
 
 	// Do next cmd
 	cmdProcessCurr();
+	uv_mutex_unlock(&g_sArm.sCmdMutex);
 }
 
 void processArmPos(void) {

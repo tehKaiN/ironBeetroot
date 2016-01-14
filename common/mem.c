@@ -29,11 +29,11 @@ void *memAlloc(ULONG ulSize) {
 	pEntry = (tMemAllocEntry*)pNode->pData;
 	pEntry->pAddr = pAddr;
 	pEntry->ulSize = ulSize;
-	for(i = 0; i != g_sMemManager.uwIndent; ++i)
-		fprintf(g_sMemManager.pLog, "\t");
-	fprintf(g_sMemManager.pLog, "+ %p (%u)\n", pAddr, ulSize);
-	fflush(g_sMemManager.pLog);
-	++g_sMemManager.uwIndent;
+//	for(i = 0; i != g_sMemManager.uwIndent; ++i)
+//		fprintf(g_sMemManager.pLog, "\t");
+//	fprintf(g_sMemManager.pLog, "+ %p (%u)\n", pAddr, ulSize);
+//	fflush(g_sMemManager.pLog);
+//	++g_sMemManager.uwIndent;
 
 	return pAddr;
 }
@@ -47,11 +47,11 @@ void memFree(void *pAddr) {
 	while(pNode) {
 		pEntry = pNode->pData;
 		if(pEntry->pAddr == pAddr) {
-			--g_sMemManager.uwIndent;
-			for(i = 0; i != g_sMemManager.uwIndent; ++i)
-				fprintf(g_sMemManager.pLog, "\t");
-			fprintf(g_sMemManager.pLog, "- %p (%u)\n", pAddr, pEntry->ulSize);
-			fflush(g_sMemManager.pLog);
+//			--g_sMemManager.uwIndent;
+//			for(i = 0; i != g_sMemManager.uwIndent; ++i)
+//				fprintf(g_sMemManager.pLog, "\t");
+//			fprintf(g_sMemManager.pLog, "- %p (%u)\n", pAddr, pEntry->ulSize);
+//			fflush(g_sMemManager.pLog);
       listRmNode(g_sMemManager.pList, pNode);
 			free(pAddr);
 			return;

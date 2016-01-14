@@ -102,7 +102,7 @@ void armUpdate(uv_timer_t *pTimer) {
 	else
 		logWrite("Made new route for arm B with %hu commands", pArm->ubCmdCount);
 	ubLastState = 0;
-	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
+//	uv_timer_init(g_sNetManager.pLoop, &pArm->sTimer);
 	pArm->sTimer.data = (void *)pArm;
 	uv_timer_start(&pArm->sTimer, armSetRoute, 100, 500);
 }
@@ -120,10 +120,10 @@ void armSetRoute(uv_timer_t *pTimer) {
 		return;
 
 	// Reserve route
+	uv_timer_stop(&pArm->sTimer);
 	armRouteReserve(pArm);
 
 	// Send instruction list to arm
-	uv_timer_stop(&pArm->sTimer);
 	packetPrepare(
 		(tPacket *)&sPacket, PACKET_SETARMCOMMANDS, sizeof(tPacketArmCommands)
 	);
@@ -284,10 +284,11 @@ UBYTE armRouteCheck(tLeaderArm *pArm) {
 				ubX++;
 				break;
 			case ARM_CMD_MOVE_W:
-				ubY--;
+				ubX--;
 				break;
 		}
 		// Check if field is reserved
+		logWrite("Pos %hu,%hu: %hu", ubX, ubY, g_sLeader.pFields[ubX][ubY]);
 		if(g_sLeader.pFields[ubX][ubY])
 			return 0;
 	}
@@ -312,7 +313,7 @@ void armRouteReserve(tLeaderArm *pArm) {
 				ubX++;
 				break;
 			case ARM_CMD_MOVE_W:
-				ubY--;
+				ubX--;
 				break;
 		}
 		g_sLeader.pFields[ubX][ubY]++;

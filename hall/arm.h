@@ -17,6 +17,11 @@ typedef struct _tHallArm{
 	tPackage *pPackage;  /// Currently held package
 	uv_mutex_t sMutex;   /// Arm struct mutex
 	uv_timer_t sTimer;   /// Arm update timer
+									      // Actuator state
+	UBYTE ubMotorX;
+	UBYTE ubMotorY;
+	UBYTE ubGrab;
+	UBYTE ubHeight;
 } tHallArm;
 
 void armInit(

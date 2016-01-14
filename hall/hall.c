@@ -41,7 +41,7 @@ void hallCreate(void) {
 	UBYTE (*op)(UBYTE);
 
   // TODO(#2): Load dimensions from config
-  g_sHall.ubWidth = 20;
+  g_sHall.ubWidth = 10;
   g_sHall.ubHeight = 9;
   logWrite("Creating hall %hux%hu", g_sHall.ubWidth, g_sHall.ubHeight);
 
@@ -56,6 +56,7 @@ void hallCreate(void) {
 	// Generate platforms
 	logWrite("Generating platforms...");
 	uv_mutex_init(&g_sHall.sPlatformMutex);
+	uv_mutex_init(&g_sHall.sPackageMutex);
 	op = (1?even:odd); // TODO(#2): Read even/odd from config
 	g_sHall.ubPlatformCount = (g_sHall.ubHeight >> 1) << 1;
 	g_sHall.pPlatforms = memAlloc(g_sHall.ubPlatformCount * sizeof(tPlatform));
@@ -83,6 +84,7 @@ void hallDestroy(void) {
 
 	// Free platforms
 	uv_mutex_destroy(&g_sHall.sPlatformMutex);
+	uv_mutex_destroy(&g_sHall.sPackageMutex);
   memFree(g_sHall.pPlatforms);
 
 	// Free storage fields

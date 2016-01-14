@@ -295,6 +295,7 @@ void processPackageList(tNetConn *pClientConn) {
 
 	ubPackageCount = 0;
 	// Iterate through platforms
+	uv_mutex_lock(&g_sHall.sPackageMutex);
 	uv_mutex_lock(&g_sHall.sPlatformMutex);
 	for(i = 0; i != g_sHall.ubPlatformCount; ++i) {
 		pPackage = g_sHall.pPlatforms[i].pPackage;
@@ -323,6 +324,7 @@ void processPackageList(tNetConn *pClientConn) {
 		++ubPackageCount;
 	}
 	sResponse.ubPackageCount = ubPackageCount;
+	uv_mutex_unlock(&g_sHall.sPackageMutex);
 
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
@@ -339,53 +341,11 @@ void processActuators(tNetConn *pClientConn, tPacketActuators* pPacket) {
 		logError("Unknown arm client: 0x%p", pClientConn);
 		return;
 	}
+	pArm->ubMotorX = pPacket->ubMotorX;
+	pArm->ubMotorY = pPacket->ubMotorY;
+	pArm->ubGrab = pPacket->ubGrab;
+	pArm->ubHeight = pPacket->ubHeight;
 
-	// Move arm on X
-	uv_mutex_lock(&pArm->sMutex);
-	if(pPacket->ubMotorX == MOTOR_PLUS) {
-		pArm->uwX += 1 << pArm->ubSpeed;
-	}
-	else if(pPacket->ubMotorX == MOTOR_MINUS) {
-		pArm->uwX -= 1 << pArm->ubSpeed;
-	}
-
-	// Move arm on Y
-	if(pPacket->ubMotorX == MOTOR_PLUS) {
-		pArm->uwY += 1 << pArm->ubSpeed;
-	}
-	else if(pPacket->ubMotorX == MOTOR_MINUS) {
-		pArm->uwY -= 1 << pArm->ubSpeed;
-	}
-
-	// Change grab state
-	if(pPacket->ubGrab == GRAB_CLOSE) {
-		if((pArm->ubState & ARM_STATE_GRAB_MASK) == ARM_STATE_GRABMOVE)
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_CLOSED;
-		else
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_GRABMOVE;
-	}
-	else if(pPacket->ubGrab == GRAB_OPEN) {
-		if((pArm->ubState & ARM_STATE_GRAB_MASK) == ARM_STATE_GRABMOVE)
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_OPEN;
-		else
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_GRABMOVE;
-	}
-
-	// Change grab height
-	if(pPacket->ubHeight == HEIGHT_DOWN) {
-		if((pArm->ubState & ARM_STATE_MOVEV_MASK) == ARM_STATE_MOVEV)
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_DOWN;
-		else
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_MOVEV;
-	}
-	else if(pPacket->ubHeight == HEIGHT_UP) {
-		if((pArm->ubState & ARM_STATE_MOVEV_MASK) == ARM_STATE_MOVEV)
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_UP;
-		else
-			pArm->ubState = (pArm->ubState & (0xFF ^ ARM_STATE_GRAB_MASK)) | ARM_STATE_MOVEV;
-	}
-
-	uv_mutex_unlock(&pArm->sMutex);
 }
 
 void processSensors(tNetConn *pClientConn) {
@@ -407,9 +367,11 @@ void processSensors(tNetConn *pClientConn) {
 		(tPacket*)&sResponse, PACKET_R_GETSENSORINFO, sizeof(tPacketSensorInfo)
 	);
 
+	uv_mutex_lock(&pArm->sMutex);
 	sResponse.ubState = pArm->ubState;
 	sResponse.uwX = pArm->uwX;
 	sResponse.uwY = pArm->uwY;
+	uv_mutex_unlock(&pArm->sMutex);
 	netSend(pClientConn, (tPacket*)&sResponse, netNopOnWrite);
 }
 

@@ -27,6 +27,7 @@ typedef struct _tSim{
 															// Platform fields
 	tPlatform *pPlatforms;     /// Array of platforms
 	uv_mutex_t sPlatformMutex; /// pPlatforms & ubPlatformCount Mutex
+	uv_mutex_t sPackageMutex;  /// Mutex for all package ops
 	UBYTE ubPlatformCount;     /// Length of pPlatforms
 															// Arm fields
 	tHallArm sArmA;            /// HE HE HE...

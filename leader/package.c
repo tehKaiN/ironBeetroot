@@ -10,6 +10,7 @@ tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 	tLeaderPackage *pPackage;
 	tLeaderPlatform *pSrc, *pDst, *pHlp;
 
+	uv_mutex_lock(&g_sLeader.sPackageMutex);
 	for(i = 0; i != g_sLeader.ubPackageCount; ++i) {
 		pPackage = &g_sLeader.pPackages[i];
 
@@ -33,6 +34,7 @@ tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 		if(armCheckWithinRange(pArm, pDst)) {
 			// Busy destination shouldn't be a problem, so don't check for it
 			pPackage->pPlatformHlp = 0;
+			uv_mutex_unlock(&g_sLeader.sPackageMutex);
       return pPackage;
 		}
 		else {
@@ -42,9 +44,11 @@ tLeaderPackage *packageGetNext(tLeaderArm *pArm) {
 				continue;
 			}
 			pPackage->pPlatformHlp = pHlp;
+			uv_mutex_unlock(&g_sLeader.sPackageMutex);
 			return pPackage;
 		}
 	}
+	uv_mutex_unlock(&g_sLeader.sPackageMutex);
 	return 0;
 }
 
